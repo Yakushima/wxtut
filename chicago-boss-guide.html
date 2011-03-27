@@ -1,0 +1,1071 @@
+
+<!-- saved from url=(0051)http://beta.chicagoboss.org/chicago-boss-guide.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+        <title>An Evening With Chicago Boss</title>
+        <link rel="stylesheet" type="text/css" href="./chicago-boss-guide_files/emiller.css">
+        <style type="text/css">
+            code {
+                background-color: #e3e3e3;
+            }
+            pre {
+                padding: 10px;
+                background-color: #F5E1E4;
+                font-weight: bold;
+            }
+            a.source {
+                font-family: monospace;
+            }
+            div.aside {
+                border: 2px dashed #5c84b0;
+                margin: 20px;
+                padding: 10px;
+            }
+            div.aside code {
+                background-color: white;
+            }
+            div.figure {
+                border: 1px solid black;
+                margin: 20px;
+                padding: 10px;
+                background-color: #92877B;
+                text-align: center;
+            }
+            div.quote {
+                text-align: center;
+                font-style: italic;
+                padding: 5px;
+            }
+            div.terminal {
+                font-family: monospace;
+                margin: 10px;
+                padding: 10px;
+                background-color: #FDFFD9;
+            }
+            span.code {
+                font-family: monospace;
+                font-weight: bold;
+                font-size: 14px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="content">
+            <div style="padding: 10px;">
+<h1>An Evening With Chicago Boss</h1>
+
+<p>By <a href="http://beta.chicagoboss.org/">Evan Miller</a></p>
+
+<p><em>DRAFT: September 7, 2010</em> (<a href="http://beta.chicagoboss.org/chicago-boss-guide.html#changes">changes</a>)</p>
+
+<h2>Part I. Introduction</h2>
+
+<p>I wrote a web framework for Erlang called <a href="http://www.chicagoboss.org/">Chicago Boss</a>. This guide will show you how to use it to write a simple web application, complete with logins and an RSS feed.</p>
+
+<div class="quote">
+    <p>“Well, what's in it for me?” ―You</p>
+</div>
+
+<p>Chicago Boss gives you a high-performance database that scales, an advanced ORM, fast Django templates, clean pattern-matching controllers, automatic code reloading, auto-generated documentation for your models, a clunky but very useful admin interface, and an innovative functional test framework, all right out of the box. If you choose to use Boss, your development cycles will be fast, your code will be clean, and your servers will be grateful.</p>
+
+<p>If you're new to Erlang and curious about what makes Chicago Boss fast, check out <a href="http://beta.chicagoboss.org/chicago-boss-secret.html">Chicago Boss's Big Secret</a>. If you don't care about whys and just want to get behind the wheel, read on. If you have any questions or find any errors, feel free to <a href="http://groups.google.com/group/chicagoboss">check out the mailing list</a> or just send me an email personally, emmiller@gmail.com.</p>
+
+<p>Let's get started!</p>
+
+<h2>Part II. Building With Boss</h2>
+
+<div class="quote">
+"You leave the thinkin' to me." ―Boss
+</div>
+
+<h3>II.0. Table of Contents</h3>
+<p>Here's the roadmap, pilgrim:</p>
+<ol>
+    <li><a href="http://beta.chicagoboss.org/chicago-boss-guide.html#learning-erlang">Learning Erlang</a></li>
+    <li><a href="http://beta.chicagoboss.org/chicago-boss-guide.html#installing-erlang">Installing Erlang</a></li>
+    <li><a href="http://beta.chicagoboss.org/chicago-boss-guide.html#my-first-boss">My First Boss</a></li>
+    <li><a href="http://beta.chicagoboss.org/chicago-boss-guide.html#essential-tricks">Essential Tricks: /admin and /doc</a></li>
+    <li><a href="http://beta.chicagoboss.org/chicago-boss-guide.html#model-view-controller">Model, View and Controller</a></li>
+    <ol>
+        <li><a href="http://beta.chicagoboss.org/chicago-boss-guide.html#model">Model</a></li>
+        <li><a href="http://beta.chicagoboss.org/chicago-boss-guide.html#view">View</a></li>
+        <li><a href="http://beta.chicagoboss.org/chicago-boss-guide.html#controller">Controller</a></li>
+        <li><a href="http://beta.chicagoboss.org/chicago-boss-guide.html#all-together">All Together Now</a></li>
+    </ol>
+    <li><a href="http://beta.chicagoboss.org/chicago-boss-guide.html#associations">Associations: belongs_to and has</a></li>
+    <li><a href="http://beta.chicagoboss.org/chicago-boss-guide.html#logins">How To Implement Log-ins</a></li>
+    <li><a href="http://beta.chicagoboss.org/chicago-boss-guide.html#login-info">How To Actually Use Log-In Information</a></li>
+    <li><a href="http://beta.chicagoboss.org/chicago-boss-guide.html#validate">How To Validate Input</a></li>
+    <li><a href="http://beta.chicagoboss.org/chicago-boss-guide.html#logout">How To Implement A Log-Out</a></li>
+    <li><a href="http://beta.chicagoboss.org/chicago-boss-guide.html#rss-feed">How To Implement an RSS feed</a></li>
+</ol>
+
+<a name="learning-erlang"></a>
+<h3>II.1. Learning Erlang</h3>
+
+<p><em>Learn Erlang if you don't know it.</em> You can try to pick up on Erlang syntax by reading the examples in the rest of this article, but if you want to build things, you'll need to get acquainted with a good Erlang reference. I recommend the book <a href="http://pragprog.com/titles/jaerlang/programming-erlang"><em>Programming Erlang</em></a> by Joe Armstrong. If you buy the PDF, you can even start reading it today. Here, I'll even tell you the parts you can skip if you just want to start building things with Boss as soon as possible:</p>
+
+<p><em>Read</em>: Chapter 2, Chapter 3 (skip 3.9 Records), Chapter 5 (skip 5.2 Binaries and 5.3 Bit Syntax).
+
+</p><p>Those 3 chapters have 99% of what you need. Read Chapter 4 (Exceptions) once you've built a few things and need extra robustness. But otherwise, you don't need to worry about compiling, concurrency, the process model, server loops, or any of the other things Erlang is celebrated for. Boss takes care of it.</p>
+
+<p>An alternative book is free on the web: <em><a href="http://learnyousomeerlang.com/">Learn You Some Erlang For Great Good!</a></em> I haven't read it but it looks entertaining.</p>
+
+<a name="installing-erlang"></a>
+<h3>II.2. Installing Erlang</h3>
+
+<p>Chapter 2 of the Armstrong book explains how to download and install Erlang. Here's the gist of it:</p>
+
+<p><em>Linux:</em></p>
+
+<div class="terminal">
+sudo apt-get install erlang
+</div>
+
+<p><em>Mac:</em></p>
+
+<p>Use <a href="http://www.macports.org/">MacPorts</a> (using the <code>+ssl</code> option), or:</p>
+
+<div class="terminal">
+    wget http://www.erlang.org/download/otp_src_R13B04.tar.gz<br>
+    tar xzf otp_src_R13B04.tar.gz<br>
+    cd otp_src_R13B04<br>
+    ./configure<br>
+    make<br>
+    sudo make install<br>
+</div>
+
+<p><em>Windows:</em></p>
+
+<p>Chicago Boss hasn't actually been tested on Windows, but you can be the first! You can install Erlang by downloading a binary from <a href="http://www.erlang.org/download.html">the Erlang download page</a>. </p>
+
+<h3>II.3. Database options</h3>
+
+<p>For this tutorial, we'll use an in-memory database, so there's nothing to install. When you want to get serious, check out <a href="http://beta.chicagoboss.org/chicago-boss-guide.html#meet-tyrant">Appendix A: Meet The Tyrant</a>.
+
+<a name="my-first-boss"></a>
+</p><h3>II.4. My First Boss</h3>
+
+<p>We're finally ready to have some fun. First, download Chicago Boss, unpack, and cd:</p>
+
+<div class="terminal">
+    wget http://www.chicagoboss.org/attachments/download/7/ChicagoBoss-0.4.5.tar.gz<br>
+    tar xzf ChicagoBoss-0.4.5.tar.gz<br>
+    cd ChicagoBoss-0.4.5
+</div>
+
+<p>The way things are currently set up, there's actually nothing to install. You'll do all your work right in the source directory. To upgrade Boss you'll just copy over a few files, and to start a new project, you'll just download a fresh copy of Boss.</p>
+
+<p>Boss ships with a little "Hello, world!" app. Let's see if it works:</p>
+
+<div class="terminal">
+    make<br>
+./START-DEV.SH
+</div>
+
+<p>There will be a lot of PROGRESS REPORTs flying by on your terminal but hopefully everything is OK. Now point your web browser to:</p>
+
+<code>http://localhost:8001/</code>
+
+<p>(Obviously, if you're running Boss on another machine, change <span class="code">localhost</span> to the name of that machine.)</p>
+
+<p>You should get a friendly little greeting from the Boss, complete with Gothic finger tattoos.</p>
+
+<p>The terminal with the PROGRESS REPORTs is actually a shell that has direct access to the server. In this shell, you can type in any Erlang command, interact with the database, and use the full Boss API. It's pretty convenient, and it's a good place to learn a few commands.</p>
+
+<p>Let's try a few. The greeting you see in the web browser actually comes from the database. Let's find it. That's right, we're about to type in the shell with all the PROGRESS REPORTs. Just trust me.</p>
+
+<div class="terminal">
+&gt; Greetings = boss_db:find(greeting, []).
+</div>
+
+<p>That command searches the database for greetings that match the search criteria. In the second argument we've specified an empty list of search criteria, so it should search for all greetings. The command should return something like this:</p>
+
+<div class="terminal">
+[{greeting, "greeting-1", "Boss says Hello!"}]
+</div>
+
+<p>What you see there is a list with a single BossRecord. A BossRecord looks like an ordinary tuple, but it has special powers. First let's get the BossRecord out of the list:</p>
+
+<div class="terminal">
+    &gt; Greeting = hd(Greetings). % Pop the only BossRecord off the list<br>
+{greeting,"greeting-1","Boss says Hello!"}
+</div>
+
+<p>Now let's invoke some powers:</p>
+
+<div class="terminal">
+    &gt; Greeting:attribute_names().<br>
+[id, greeting_text]
+</div>
+
+<p>The function <span class="code">attribute_names</span> returns a list of the BossRecord's attributes. These attributes are an essential aspect of programming with Chicago Boss; think of them as database columns or text fields. We will define a list of attributes for every data model in our project. Here we see that the greeting model only has two attributes (<span class="code">id</span> and <span class="code">greeting_text</span>), and we can access them with individual function calls like this:</p>
+
+<div class="terminal">
+    &gt; Greeting:greeting_text().<br>
+    "Boss says Hello!"<br>
+    &gt; Greeting:id().<br>
+    "greeting-1"<br>
+</div>
+
+<p>The <span class="code">id</span> attribute is special. It belongs to all BossRecords and its values are unique. We'll see that IDs are automatically generated and are always prefixed with the object type (e.g. "greeting-"). It's not that important, but the ID <em>number</em> is also unique, so that if there's a greeting-1, there will not be a user-1, and if there's a user-42, there will not be a greeting-42.</p>
+
+<p>Anyway, BossRecords also come with setter functions. Recall that Erlang is a single-assignment language, so if we change the BossRecord, we need to assign it to a new variable. Let's try changing the message:</p>
+
+<div class="terminal">
+&gt; NewGreeting = Greeting:greeting_text("Do I look like Santa Claus?").<br>
+{greeting,"greeting-1",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"Do I look like Santa Claus?"}<br>
+</div>
+
+<p>Now go back to your web browser and refresh. Do you see the new message?</p>
+
+<p>You shouldn't. We still need to save the changes we've made to the database. Saving can be accomplished with the <span class="code">save()</span> function:</p>
+
+<div class="terminal">
+    &gt; NewGreeting:save().<br>
+    {ok, {greeting,"greeting-2",
+    &nbsp;&nbsp;&nbsp;&nbsp;"Do I look like Santa Claus?"}}
+</div>
+
+<p>Now go back to your web browser and refresh. Tada!</p>
+
+<p>Next, let's add another greeting to the database. We use the <span class="code">greeting:new/2</span> function to create a greeting:</p>
+
+<div class="terminal">
+    &gt; MyGreeting = greeting:new(id, "Where's mine?").<br>
+{greeting, id, "Where's mine?"}
+</div>
+
+<p>Recall that the greeting model has two attributes: <span class="code">id</span> and <span class="code">greeting_text</span>. The <span class="code">new</span> function is always invoked with a value for each attribute: no more, no less. <em>The attribute order is important!</em> It's defined in the model file, which we'll get to in a few minutes. For now, let's make sure we got the order right. Check the <span class="code">id</span>:</p>
+
+<div class="terminal">
+    &gt; MyGreeting:id().<br>
+id
+</div>
+
+<p>And the <span class="code">greeting_text</span>:</p>
+
+<div class="terminal">
+    &gt; MyGreeting:greeting_text().<br>
+"Where's mine?"
+</div>
+
+<p>Looks OK. Notice that we passed in the atom <span class="code">id</span> instead of an ID string. That tells Boss that we want the ID to be generated for us. The ID will be generated as soon as we save the BossRecord:</p>
+
+<div class="terminal">
+    &gt; {ok, SavedGreeting} = MyGreeting:save().<br>
+    {ok, {greeting, "greeting-2", "Where's mine?"}}
+</div>
+
+<p>The ID is always in the second position, but we can access it with the getter function too:</p>
+
+<div class="terminal">
+    &gt; SavedGreeting:id().<br>
+"greeting-2"
+</div>
+
+<p>Since the new greeting has an ID, we know for sure it's in the database. Let's prove it:</p>
+
+<div class="terminal">
+    &gt; boss_db:find(greeting, []).<br>
+    [{greeting, "greeting-1", "Do I look like Santa Claus?"},<br>
+&nbsp;{greeting, "greeting-2", "Where's mine?"}]
+ </div>
+
+ <p>Now we're rolling! If you go back to your web browser and refresh a few times, you should see both messages appear (the page just picks one at random each page load).</p>
+
+ <p>So far we've been pulling things out of the database by executing searches. But if we know the ID, we can just pull that one record. Let's try it, just for kicks:</p>
+
+<div class="terminal">
+    &gt; boss_db:find("greeting-1").<br>
+{greeting, "greeting-1", "Do I look like Santa Claus?"}
+</div>
+
+<p>That function (<span class="code">boss_db:find/1</span>) is probably the function you'll use more than any other in Chicago Boss programming, so get to know it well. Fortunately it's pretty easy: just pass in the ID as a string. If you want to make sure the ID corresponds to the model you think it does, just use the <span class="code">boss_db:type/1</span> function:</p>
+
+<div class="terminal">
+    &gt; boss_db:type("greeting-1").<br>
+greeting
+</div>
+
+<p>That comes in handy for defensive programming. (The <span class="code">type</span> function isn't completely trivial, it returns <span class="code">undefined</span> if there's no record with that ID in the database.)</p>
+
+<p>Hey, did you realize that we've already covered the <span class="code">C</span> as in Create, the <span class="code">R</span> as in Read, and the <span class="code">U</span> as in Update of <span class="code">CRUD</span>? All that's left is <span class="code">D</span> as in Delete! Let's kill that greeting that Boss shipped with:</p>
+
+<div class="terminal">
+    &gt; boss_db:delete("greeting-1").<br>
+ok
+</div>
+
+<p>And to prove it's not in the database any longer:</p>
+
+<div class="terminal">
+    &gt; boss_db:find(greeting, []).<br>
+[{greeting, "greeting-2", "Where's mine?"}]
+</div>
+
+<p>A shorter way to check how many items are in the database is the <span class="code">boss_db:count/1</span> function. It takes the model type as the only argument:</p>
+
+<div class="terminal">
+    &gt; boss_db:count(greeting).<br>
+1
+</div>
+
+<p>There's another version, <span class="code">boss_db:count/2</span>, which takes a list of search criteria as the second argument. <span class="code">count</span> performs fewer database queries than <span class="code">find</span>, but with Chicago Boss, this difference isn't a big deal.</p>
+
+<a name="essential-tricks"></a>
+<h3>II.5. Essential Tricks: /admin and /doc</h3>
+
+<p>Before we start writing a program, I'm going to let you in on a couple of tricks that will help you along the way.</p>
+
+<p>The first is the <span class="code">/admin</span> interface. <span class="code">/admin</span> lets you do the same things we were doing in the shell, but through a web interface. Point your browser to</p>
+
+<code>http://localhost:8001/admin</code>
+
+<p>Click on "greeting" to check it out. With <span class="code">/admin</span> you can</p>
+
+<ul>
+    <li>See a list of records in the database</li>
+
+    <li>View an individual record and all its associated records</li>
+
+    <li>Create a new record</li>
+
+    <li>Delete a record</li>
+</ul>
+
+<p>The interface is helpful for debugging and is also helpful if you don't feel like writing an interface for features that only site administrators see. The <span class="code">/admin</span> interface is pretty clunky at the moment, but if you want to improve it, you will earn the accolades of Chicago Boss developers everywhere!</p>
+
+<p>By default, <span class="code">/admin</span> is accessible only from the local machine. If you want to change that, you will have to modify the logic at the top of <span class="code">ADMIN/admin_controller.erl</span>. For now, it should be fine as is.</p>
+
+<p>The second trick to know is called <span class="code">/doc</span>. Remember how I said that BossRecords are parameterized modules with special powers? Unlike regular Erlang modules, they get compiled with a lot of extra features that you don't have to write yourself: getter functions, setter functions, the <span class="code">save/0</span> function, and so on. (Note that the standard Erlang compiler doesn't support inheritance; these add-on functions are a huge win for Chicago Boss and set it apart from other Erlang frameworks.)</p>
+
+<p>To see all of the generated functions that your model has (plus any functions you wrote), just point your browser to</p>
+
+<code>http://localhost:8001/doc/MODELNAME</code>
+
+<p>(e.g., <span class="code">/doc/greeting</span>)</p>
+
+<p>Not only will you see documentation for all functions, but you'll also find the all-important ordered attribute list in big letters at the top. You'll probably consult that list whenever you call the <span class="code">new</span> function, so get used to typing <span class="code">/doc</span> into your browser.</p>
+
+<p>With these tools in hand, you should be itching to hammer out some code.</p>
+
+<a name="model-view-controller"></a>
+<h3>II.6. Model, View, and Controller</h3>
+
+<p>In the interest of simplicity, I'm going to show you how to build a simple app that shows a list of records and displays an individual record. We'll cheat and use the <span class="code">/admin</span> interface to populate the database, but by the end of this guide you should be able to write your own pages for creating, updating, and deleting records, complete with user authentication and input validation. Heck we'll even make an RSS feed before the evening is over. Let's get started!</p>
+
+<p>You should have a terminal open with the active server shell. Keep it open, and use another terminal (or your favorite text editor) to edit text files. If you accidentally closed the shell just type in <span class="code">./START-DEV.SH</span> again in the ChicagoBoss directory.</p>
+
+<a name="model"></a>
+<h4>II.6.1. Model</h4>
+
+<p>The first thing we'll do is create a model file. Model files will be turned into those mystical BossRecords that make Boss programming such a breeze. In true Chicago style, our example app will be a database of voters. Open up a new file called <span class="code">model/voter.erl</span>, and type these lines into it:</p>
+
+<pre>-module(voter, [Id, FirstName, LastName, Address, Notes]).
+-compile(export_all).
+</pre>
+
+<p>That's all we need for now. Save and close. Point your browser to <span class="code">/doc</span> to see what we created:</p>
+
+<code>http://localhost:8001/doc/voter</code>
+
+<p>You'll see the parameter list we defined in bold letters at the top. Note that <span class="code">Id</span> always has to be the first parameter.</p>
+
+<p>Also note that we already have getter and setter functions called <span class="code">id</span>, <span class="code">first_name</span>, <span class="code">last_name</span>, <span class="code">address</span>, and <span class="code">notes</span>. Chicago Boss converts each CamelCase parameter name to its underscored equivalent for these attribute functions.</p>
+
+<div class="aside">Parameters that end with <span class="code">Id</span> or <span class="code">Time</span> have special meaning, which we'll discuss later.</div>
+
+<p>If you choose to go off and write your own functions inside the model file, they'll have access to all of these functions, and they'll also have access to the parameter variables directly (<span class="code">Id</span>, <span class="code">FirstName</span>, and so forth). For now, we don't need to write our own functions.</p>
+
+<p>Next we want to populate the database with some voters. Point your browser to</p>
+
+<code>http://localhost:8001/admin/model/voter</code>
+
+<p>Click the button labeled "+ New voter" and fill out some dummy values, and then click "Create voter." It should show you a page like this:</p>
+
+<div class="figure">
+<img src="./chicago-boss-guide_files/boss-guide-new-voter.png" style="border: 1px solid black;">
+</div>
+
+<p>Click "Back to the voter list" and repeat until you have two or three voters in the database.</p>
+
+<a name="view"></a>
+<h4>II.6.2. View</h4>
+
+<p>Now let's build a little interface of our own. Create a directory in <span class="code">View</span> called <span class="code">voter</span>, and open up a new file called <span class="code">view/voter/list.html</span>.
+
+</p><p>This file will be a template written in the <a href="http://www.djangoproject.com/documentation/0.96/templates/">Django Template Language</a>. Let's put a dumb little list into our template:</p>
+
+<pre>&lt;ol&gt;
+{% for voter in voters %}
+&lt;li&gt;{{ voter.first_name }} {{ voter.last_name }} - {{ voter.address }}&lt;/li&gt;
+{% endfor %}
+&lt;/ol&gt;
+</pre>
+
+<p>We're not winning any design awards, but hey. Note that variables in the template have complete access to BossRecord attributes with the simple dot notation. Under the hood it's calling the getter functions, so we need to use the underscore form rather than the CamelCase names. Anyhow, save and close.</p>
+
+<a name="controller"></a>
+<h4>II.6.3. Controller</h4>
+
+<p>Now all we need is some glue code: the controller. Open up a new file called <span class="code">controller/voter_controller.erl</span> and put the following lines into it:</p>
+
+<pre>-module(voter_controller, [Req]).
+-compile(export_all).
+
+list('GET', []) -&gt;
+    Voters = boss_db:find(voter, []),
+    {ok, [{voters, Voters}]}.
+</pre>
+
+    <p>Let's talk about each of these lines in order:</p>
+
+<pre>-module(voter_controller, [Req]).
+</pre>
+
+<p>Controllers are parameterized modules that take a single parameter called <span class="code">Req</span>. <span class="code">Req</span> is a <a href="http://github.com/rklophaus/SimpleBridge">SimpleBridge HTTP Request Object</a> that gives us access to useful stuff like POST parameters, cookies, headers, etc. We don't need <span class="code">Req</span> in this example but it will come in mega-handy later on.</p>
+
+<pre>-compile(export_all).
+</pre>
+
+<p>(So Chicago Boss can actually access our controller functions.)</p>
+
+<pre>list('GET', []) -&gt;
+</pre>
+
+<p>Each action is associated with a function of the same name. The function takes two arguments (or three, if you choose to implement log-ins, <a href="http://beta.chicagoboss.org/chicago-boss-guide.html#logins">see below</a>). The first argument is the HTTP request method, passed as an atom. As we'll see later on, this is especially powerful in conjunction with Erlang's pattern-matching. The second argument is a list of tokens in the URL beyond the controller name and action name; this is how we get "pretty" URLs without needing a separate URL routing file. This token list is also powerful in conjunction with Erlang's pattern-matching, but for now, the token list is empty.</p>
+
+<pre>Voters = boss_db:find(voter, []),
+</pre>
+
+<p>Look familiar? This is exactly what we did in the Chicago Boss shell.</p>
+
+<pre>{ok, [{voters, Voters}]}.
+</pre>
+
+<p>To render the associated template, the controller function needs to return <span class="code">{ok, Variables}</span>, where <span class="code">Variables</span> is a proplist that gets passed to the template file. You can return other values in order to perform a redirect, set HTTP headers, or report an error. We'll get to some of those, or you can read about controller return values in the <a href="http://www.chicagoboss.org/api.html">Chicago Boss API docs</a>. For now, we just want a single variable called "voters" which will contain the list we get from the database.</p>
+
+<a name="all-together"></a>
+<h4>II.6.4. All Together Now</h4>
+
+<p>And... that's it! Point your browser to see your very first app in action:</p>
+
+<code>http://localhost:8001/voter/list</code>
+
+<p>You should see your list of voters and their addresses. Cool, huh?</p>
+
+<p>Whoever thought a telecom programming platform could be this easy? We have a fully functioning feature with only</p>
+
+<ul>
+    <li>2 lines of Model code</li>
+    <li>5 lines of View code</li>
+    <li>5 lines of Controller code</li>
+</ul>
+
+<p>Now let's have a little more fun. Let's make a page for viewing our Notes on each voter. Start by modifying the list template, <span class="code">view/voter/list.html</span>. Change Line 3 to have a link, like this:</p>
+
+<pre>&lt;li&gt;&lt;a href="/voter/view/{{ voter.id }}"&gt;{{ voter.first_name }} {{ voter.last_name }}&lt;/a&gt;
+</pre>
+
+Now open a new file called <span class="code">view/voter/view.html</span>, and put this into it:
+
+<pre>&lt;h1&gt;{{ voter.first_name }} {{ voter.last_name }}&lt;/h1&gt;
+&lt;b&gt;Address&lt;/b&gt;&lt;br /&gt;
+{{ voter.address|linebreaksbr }}&lt;br /&gt;
+
+&lt;b&gt;Notes&lt;/b&gt;&lt;br /&gt;
+{{ voter.notes|linebreaksbr }}&lt;br /&gt;
+
+&lt;a href="/voter/list"&gt;Back to the voter list&lt;/a&gt;
+</pre>
+
+<p>Here we're applying Django's <span class="code">linebreaksbr</span> filter to the Notes and Address, which just adds HTML breaks in the appropriate places.</p>
+
+<p>All that's left is the controller glue. Add this function to the end of <span class="code">voter_controller.erl</span>:</p>
+
+<pre>view('GET', [VoterId]) -&gt;
+    Voter = boss_db:find(VoterId),
+    {ok, [{voter, Voter}]}.
+</pre>
+
+    <p>Remember how I said the second argument is a list of URL tokens? That means if the requestsd URL is <span class="code">/voter/view/voter-5</span>, then the <span class="code">voter</span> controller is called with the <span class="code">view</span> action and <span class="code">["voter-5"]</span> is passed in as the token list. That makes our controller function quite simple, as you can see. Here we're just using the <span class="code">boss_db:find/1</span> function, which we saw previously in the Chicago Boss shell (and which I warned you we'd be seeing a lot of!).</p>
+
+    <p>That's all there is to our second feature. Point your browser to:</p>
+
+<code>http://localhost:8001/voter/list</code>
+
+    <p>Click on a voter and voila! There are your notes! Two features in what, 20 minutes?</p>
+
+    <p>At this point you might be wondering how to deal with user input. User input usually needs to be owned by a user, so first we're going to take a little detour and learn about associations, which lets one record belong to another. Don't worry, the detour is short, won't take but a few minutes of your time. Then we're going to write a little log-in system, which will get your feet wet with processing POST data and also acquaint you with Boss's authentication conventions. After that we'll make a submission form and learn how to validate it, and as a final sendoff we'll build an RSS feed to show you how to muck with date formatting and HTTP headers... because, hey, why not?</p>
+
+    <a name="associations"></a>
+    <h3>II.7. Associations: belongs_to and has</h3>
+
+    <p>A web app of any substance will have records that refer to each other: books belong to users, comments belong to blog posts, and so on. These relationships will be defined in our model files. Let's dive in and see exactly how Boss does it.</p>
+
+    <p>For our application, we're going to make voters belong to Ward Bosses. Open up <span class="code">model/voter.erl</span> and add an attribute called <span class="code">WardBossId</span> which will tell us which Ward Boss a voter belongs to. The file should end up looking like this:</p>
+
+    <pre>-module(Id, FirstName, LastName, Address, Notes, WardBossId]).
+-compile(export_all).
+</pre>
+
+<p>Save but don't close. Just for kicks, go open the voter <span class="code">/doc</span> page,</p>
+
+<code>http://localhost:8001/doc/voter</code>
+
+<p>It should look the same as before, but now there's an <span class="code">WardBossId</span> attribute as well as <span class="code">ward_boss_id</span> getter and setter functions.</p>
+
+<p>Now let's add some magic. Add the following line to <span class="code">model/voter.erl</span>:</p>
+
+<pre>-belongs_to(ward_boss).
+</pre>
+
+<p>Save and close, then refresh the <span class="code">/doc</span> page. Notice something new?</p>
+
+<code>ward_boss() -&gt; WardBoss</code>
+
+<p>"Retrieves the ward_boss with Id equal to the WardBossId of this voter"</p>
+
+<p>This <span class="code">-belongs_to</span> line creates a function that gives us direct access to the voter's <span class="code">WardBoss</span>. Under the hood it just calls <span class="code">boss_db:find/1</span> on the voter's <span class="code">WardBossId</span>. But this generated function will be especially useful in templates, where we'll be able to write code like:</p>
+
+<pre>{{ voter.ward_boss.name }}
+</pre>
+
+<p>Of course, we haven't even defined a model file for Ward Bosses yet! Let's go ahead and make it. Open a new file called <span class="code">model/ward_boss.erl</span>, and put this in it:</p>
+
+<pre>-module(ward_boss, [Id, Name]).
+-compile(export_all).
+-has({voters, many}).
+</pre>
+
+<p>Now we've made an Ward Boss's voters available in a function called <span class="code">voters()</span>, and in our templates we'll be able to write code like</p>
+
+<pre>{% for voter in ward_boss.voters %} ... {% endfor %}
+</pre>
+
+<p>Associations make MVC programming much, much easier. Of course, if you've seen this stuff before, you've probably been trained to worry about how many database calls we're making under the hood, whether we're prefetching the data, how to minimize database requests, etc. If that describes your thought processes, then <em>stop it!</em> I can't say this enough: with Chicago Boss, database requests aren't <em>quite</em> free, but they're damn cheap. There's no sense in counting queries at this point.</p>
+
+<p>Anyway, before we start using these nifty <span class="code">belongs_to</span> and <span class="code">has</span> associations, let's go ahead and let our Ward Bosses log in to the system, shall we?</p>
+
+<a name="logins"></a>
+<h3>II.8. How To Implement Log-ins</h3>
+
+<p>We're about to build a real log-in and session system, not just a kid's little plaything. I'm going to go a little bit faster and not comment on every single line of code we paste in, so boys and girls, hold on to your hats.</p>
+
+<p>The first thing we want to do is add an attribute for each Ward Boss's password. Open up <span class="code">model/ward_boss.erl</span> and add <span class="code">PasswordHash</span> to the list of attributes.  (Since there aren't that many aldermen, we'll let them use their real names to log in.) The first line should now look like this:</p>
+
+<pre>-module(ward_boss, [Id, Name, PasswordHash]).
+</pre>
+
+<p>Next we're going to add some logic for recognizing that a Ward Boss is logged into a session, and a function for checking passwords. Add these lines to the <span class="code">model/ward_boss.erl</span> file:</p>
+
+<pre>-define(SECRET_STRING, "Not telling secrets!").
+
+session_identifier() -&gt;
+    mochihex:to_hex(erlang:md5(?SECRET_STRING ++ Id)).
+
+check_password(Password) -&gt;
+    Salt = mochihex:to_hex(erlang:md5(Name)),
+    user_lib:hash_password(Password, Salt) =:= PasswordHash.
+
+login_cookies() -&gt;
+    [ mochiweb_cookies:cookie("user_id", Id, [{path, "/"}]),
+        mochiweb_cookies:cookie("session_id", session_identifier(), [{path, "/"}]) ].
+</pre>
+
+<p>Here's the strategy: when a log-in is successful, we'll put that session identifier along with the <span class="code">Id</span> into a cookie, and if we ever receive that same cookie back, we'll know it's the same person who logged in. No one will be able to forge sessions without knowing the secret string. So don't tell anyone what it is!</p>
+
+<p>Chicago Boss ships with mochiweb and its associated libraries. The function <span class="code">mochihex:to_hex/1</span> just turns an integer into a hex string, and <span class="code">mochiweb_cookies:cookie/3</span> generates an HTTP Set-Cookie header. If you want, you can check out the other utility functions in the <span class="code">src/mochiweb</span> directory. We'll be seeing these functions again before it's all over.</p>
+
+<p>Next let's write a little log-in page. Create a directory in <span class="code">view</span> called <span class="code">user</span>, and open a new file called <span class="code">view/user/login.html</span>. Put this into it:</p>
+
+<pre>{% if error %}
+&lt;font color="red"&gt;{{ error }}&lt;/font&gt;
+{% endif %}
+&lt;form method="post"&gt;
+Name:&lt;br /&gt;
+&lt;input name="name" /&gt;&lt;br /&gt;&lt;br /&gt;
+
+Password:&lt;br /&gt;
+&lt;input name="password" type="password" /&gt;&lt;br /&gt;&lt;br /&gt;
+
+&lt;input type="submit" value="Log in" /&gt;
+&lt;input type="hidden" name="redirect" value="{{ redirect|default_if_none:"/voter/list" }}" /&gt;
+&lt;/form&gt;
+</pre>
+
+<p>(If you have a flair for design, I'm sure you can do better.) Note that we have a hidden field here for redirecting the user; this is useful in cases where we want to redirect the user depending on how they arrived at the log-in page. Save and close.</p>
+
+<p>Now it's time for the glue code: the controller. For starters, let's make a function for the <span class="code">login</span> action. We'll make use of Erlang's pattern-matching to distinguish the case when the user is loading the log-in page and when they're sending us log-in data. To get started, open a new file called <span class="code">controller/user_controller.erl</span> and add this at the top:</p>
+
+<pre>-module(user_controller, [Req]).
+-compile(export_all).
+</pre>
+
+(Nothing different from what we saw in <span class="code">voter_controller.erl</span>.) Now add the following to <span class="code">controller/user_controller.erl</span>:
+
+<pre>login('GET', []) -&gt;
+    {ok, [{redirect, Req:header(referer)}]};
+</pre>
+
+    <p>Here we're supplying the form with the URL of the page that the user came from, which is stored in the "Referer" HTTP header. We get access to the headers through <span class="code">Req</span>, which as mentioned is a SimpleBridge request object with all sorts of goodies. In just a second we'll use it to access POST parameters.</p>
+
+    <p>Now for the "hard" part, processing login credentials. If the password checks out, we'll set the login cookies and redirect the user; otherwise, we'll return some kind of error. Add this:</p>
+
+    <pre>login('POST', []) -&gt;
+    Name = Req:post_param("name"),
+    case boss_db:find(ward_boss, [{name, Name}], 1) of
+        [WardBoss] -&gt;
+            case WardBoss:check_password(Req:post_param("password")) of
+                true -&gt;
+                    {redirect, proplists:get_value("redirect",
+                        Req:post_params(), "/"), WardBoss:login_cookies()};
+                false -&gt;
+                    {ok, [{error, "Bad name/password combination"}]}
+            end;
+        [] -&gt;
+            {ok, [{error, "No Ward Boss named " ++ Name}]}
+    end.
+</pre>
+
+    <p>Save and close. We're not <em>quite</em> done here. Back in our model file we referred to a function called <span class="code">user_lib:hash_password/1</span>, which we haven't actually written yet. Create a file called <span class="code">lib/user_lib.erl</span> and put this into it:</p>
+
+    <pre>-module(user_lib).
+-compile(export_all).
+
+hash_password(Password, Salt) -&gt;
+    mochihex:to_hex(erlang:md5(Salt ++ Password)).
+
+hash_for(Name, Password) -&gt;
+    Salt = mochihex:to_hex(erlang:md5(Name)),
+    hash_password(Password, Salt).
+</pre>
+
+    <p>Save and close. We are almost ready to start logging in users. Let's go back to our voter list page and add a log-in link. Add this line to the top of <span class="code">view/voter/list.html</span>:</p>
+
+<pre>&lt;p&gt;&lt;a href="/user/login"&gt;Log in&lt;/a&gt;&lt;/p&gt;
+</pre>
+
+    <p>Save and close. Now we just need a user! Let's cheat and add it through the <span class="code">/admin</span> interface. Navigate to:</p>
+
+    <code>http://localhost:8001/admin/model/ward_boss</code>
+
+    <p>Click "New ward_boss". All we need to do is enter a name and a... password hash? Where do we get that?</p>
+
+    <p>Not to worry―go back to the Chicago Boss shell, the one with all the PROGRESS REPORTs that we did all the work in before. Type:</p>
+
+    <div class="terminal">
+user_lib:hash_for("Bathhouse John", "password").
+</div>
+
+<p>That command will give you a password hash for the name "Bathhouse John" and the password "password". Paste that hash (without the quotes, dummy) into the <span class="code">/admin</span> form along with the name "Bathhouse John", and then click "Create ward_boss"</p>
+
+<p>Now we should have a user we can log in with. Let's test it out. Go back to the voter list page:</p>
+
+<code>http://localhost:8001/voter/list</code>
+
+<p>Click the "Log in" link we created just a minute ago. Now attempt to log in as Bathhouse John. If all is well, you should be redirected to the voter list page; otherwise, you should get an error in red at the top.</p>
+
+<p>Ok, now what? Well, the problem is that we're not really using the login information. The next step is to protect our precious voter list, and maybe add a welcome message for the Ward Boss. We don't want nobody nobody sent, now do we?</p>
+
+<a name="login-info"></a>
+<h3>II.9. How To Actually Use Log-In Information</h3>
+
+<p>First things first: protect the voter list! Open up <span class="code">controller/voter_controller.erl</span> and add this as the first function:</p>
+
+<pre>before_(_) -&gt;
+    user_lib:require_login(Req).
+</pre>
+
+<p>Before executing an action, Chicago Boss checks to see if the controller has an <span class="code">before_</span> function. If so, it passes the action name to the <span class="code">before_</span> function and checks the return value. If Boss gets a return value of <span class="code">{ok, Credentials}</span>, it proceeds to execute the action, <em>and it passes <span class="code">Credentials</span> as the third argument to the action</em>. If Boss instead gets <span class="code">{redirect, Location}</span>, it redirects the user without executing the action at all. Note that if an action only takes two arguments, the <span class="code">before_</span> step is skipped altogether.</p>
+
+<p>So to ensure <span class="code">before_</span> is invoked, we need to modify the actions to take a third argument. Modify the controller's function definitions like so:
+
+</p><pre>list('GET', [], WardBoss) -&gt;
+</pre>
+
+<pre>view('GET', [VoterId], WardBoss) -&gt;
+</pre>
+
+<p>When we're finished, these functions will have access to the BossRecord of the currently logged-in user (<span class="code">WardBoss</span>). But for now, just save and close, because we need to define the <span class="code">require_login/1</span> logic.</p>
+
+<p>Open up <span class="code">lib/user_lib.erl</span> and add the following:</p>
+
+<pre>require_login(Req) -&gt;
+    case Req:cookie("user_id") of
+        undefined -&gt; {redirect, "/user/login"};
+        Id -&gt;
+            case boss_db:find(Id) of
+                undefined -&gt; {redirect, "/user/login"};
+                WardBoss -&gt;
+                    case WardBoss:session_identifier() =:= Req:cookie("session_id") of
+                        false -&gt; {redirect, "/user/login"};
+                        true -&gt; {ok, WardBoss}
+                    end
+            end
+     end.
+</pre>
+
+<p>That's all there is to it. Save and close. Not only is the voter list now password-protected, but we can replace the log-in link with a welcome message. Open up <span class="code">view/voter/list.html</span> and change the first line to:</p>
+
+<pre>&lt;p&gt;How The Kids, {{ ward_boss.name }}?&lt;/p&gt;
+</pre>
+
+<p>All that's left is the glue code. Open up <span class="code">controller/voter_controller.erl</span> and change the list function to:</p>
+
+<pre>list('GET', [], WardBoss) -&gt;
+    Voters = boss_db:find(voter, []),
+    {ok, [{voters, Voters}, {ward_boss, WardBoss}]}.
+</pre>
+
+<p>Save and close, and mosey on over to:</p>
+
+<code>http://localhost:8001/voter/list</code>
+
+<p>If everything worked, the page should now inquire after the well-being of your progeny. We can use the log-in information to do more than show a welcome message, of course; before it's over we'll be showing each Ward Boss only the voters in their own ward. But first we want them able to submit voter information for themselves. To do that, we need to know how to validate input.</p>
+
+<a name="validate"></a>
+<h3>II.10. How To Validate Input</h3>
+
+<p>We've already seen a simple example of validating input when we checked the username and password against the database. But we what if we want to check a form and report all of its errors at once? As it turns out, Erlang's language features make it extremely easy to define a list of tests and collect all the tests that fail. We'll go through a simple example as we build a voter registration form.</p>
+
+<p>To start out, let's write the form, including a little logic for displaying errors. Open a new file called <span class="code">view/voter/register.html</span> and put into it:</p>
+
+<pre>{% if errors %}
+&lt;ol&gt;
+{% for error in errors %}
+&lt;li&gt;&lt;font color=red&gt;{{ error }}&lt;/font&gt;
+{% endfor %}
+&lt;/ol&gt;
+{% endif %}
+
+&lt;form method="post"&gt;
+First and last name:&lt;br /&gt;
+&lt;input name="first_name" value="{{ voter.first_name|default_if_none:"" }}" /&gt;
+&lt;input name="last_name" value="{{ voter.last_name|default_if_none:"" }}" /&gt;&lt;br /&gt;&lt;br /&gt;
+
+Address&lt;br /&gt;
+&lt;textarea name="address"&gt;{{ voter.address|default_if_none:"" }}&lt;/textarea&gt;&lt;br /&gt;&lt;br /&gt;
+
+Notes&lt;br /&gt;
+&lt;textarea name="notes"&gt;{{ voter.notes|default_if_none:"" }}&lt;/textarea&gt;&lt;br /&gt;&lt;br /&gt;
+
+&lt;input type="submit" value="Submit form" /&gt;
+&lt;/form&gt;
+</pre>
+
+<p>Next let's add some validation code to the model. As of v0.3.3, Chicago Boss has some built-in validation machinery. To add tests, we need to add a function called <span class="code">voter:validation_tests/0</span> which returns a list of <span class="code">{TestMessage, TestFunction}</span> tuples. The <span class="code">TestFunction</span> will be a fun of arity 0. You'll see in a second. Open up <span class="code">model/voter.erl</span> and add the following:</p>
+
+<pre>validation_tests() -&gt;
+    [{fun() -&gt; length(FirstName) &gt; 0 end,
+            "Please enter a first name"},
+        {fun() -&gt; length(LastName) &gt; 0 end,
+            "Please enter a last name"},
+        {fun() -&gt; string:str(Address, "Chicago") &gt; 0 end,
+            "Address is not in Chicago! What good is that??"}].
+</pre>
+
+<p>That's all we need to do in the model. If any of these tests fail, we'll get a list of errors when trying to save the record.</p>
+
+<p>Finally, we modify the controller code, <span class="code">controller/voter_controller.erl</span>. Add this:</p>
+
+<pre>register('GET', [], WardBoss) -&gt;
+    {ok, []};
+register('POST', [], WardBoss) -&gt;
+    Voter = voter:new(id, Req:post_param("first_name"), Req:post_param("last_name"),
+        Req:post_param("address"), Req:post_param("notes"), WardBoss:id()),
+    case Voter:save() of
+        {ok, SavedVoter} -&gt; 
+            {redirect, "/voter/view/"++SavedVoter:id()};
+        {error, Errors} -&gt;
+           {ok, [{errors, Errors}, {voter, Voter}]}
+    end.
+</pre>
+
+<p>And we're done. It might seem weird that we return <span class="code">ok</span> when there are errors, but we're just telling Chicago Boss that we've got everything under control.</p>
+
+<p>Try out the new feature by pointing your browser to:</p>
+
+<code>http://localhost:8001/voter/register</code>
+
+<p>For kicks, type in a voter who's not in Chicago and see what happens. Then try one with an address in Chicago. If everything works, it should take you to our beautiful voter information page. If so, congratulations! You are now processing and validating user input!</p>
+
+<p>Now we're in a position to really take advantage of the log-in information. Let's change the voter list to show only voters registered by the person who is logged in. Surprisingly, we'll end up <em>removing</em> more code than we add!</p>
+
+<p>First open up <span class="code">view/voter/list.html</span>, and change this line:</p>
+
+<pre>{% for voter in voters %}
+</pre>
+
+<p>To:</p>
+
+<pre>{% for voter in ward_boss.voters %}
+</pre>
+
+<p>Also, while we're there, add a link to the voter registration page to the bottom:</p>
+
+<pre>&lt;p&gt;&lt;a href="/voter/register"&gt;Register a new voter&lt;/a&gt;&lt;/p&gt;
+</pre>
+
+<p>Save and close. Next open up <span class="code">controller/voter_controller.erl</span>. Rip out the current implementation of <span class="code">list</span> and replace it with:</p>
+
+<pre>list('GET', [], WardBoss) -&gt;
+    {ok, [{ward_boss, WardBoss}]}.
+</pre>
+
+<p>Rather than search the database ourselves, we take advantage of the <span class="code">has</span> association and do all the querying that way. Point your browser back to:</p>
+
+<code>http://localhost:8001/voter/list</code>
+
+<p>You should just see the voters that you created through your form, and none of the voters we made with the <span class="code">/admin</span> interface. Go ahead and create a couple more voters using your applicatin. You made it, now play with it!</p>
+
+<a name="logout"></a>
+<h3>II.11. How To Implement A Log-Out</h3>
+
+<p>One feature we're still missing is the feature a real Ward Boss from Chicago will want most: the ability to cover his tracks!</p>
+
+<p>First let's provide a log-out link next to our welcome message. Change the first line of <span class="code">view/voter/list.html</span> to this:</p>
+
+<pre>&lt;p&gt;How The Kids, {{ ward_boss.name }}? (&lt;a href="/user/logout"&gt;Quick, Log Me Out!&lt;/a&gt;)&lt;/p&gt;
+</pre>
+
+<p>The log-out link will just reset the user's cookies and redirect somewhere, so we don't need a new template file for it. Let's pop open <span class="code">controller/user_controller.erl</span> and add a new function:</p>
+
+<pre>logout('GET', []) -&gt;
+    {redirect, "/",
+        [ mochiweb_cookies:cookie("user_id", "", [{path, "/"}]),
+            mochiweb_cookies:cookie("session_id", "", [{path, "/"}]) ]}.
+</pre>
+
+<p>That will redirect to the homepage and blank out the credential cookies. Go ahead and try it out. Refresh the voter list page (<code>/voter/list</code>) and click "Quick, Log Me Out!"</p>
+
+<p>Ah, back to the home page. I guess that nearly concludes our guided tour. At this point we have a full-fledged log-in app. Now all we need is some kind of RSS feed...</p>
+
+<a name="rss-feed"></a>
+<h3>II.12. How To Implement an RSS feed</h3>
+
+<p>You want to be notified about all those new voters, right?</p>
+
+<p>We're going to start by adding a <span class="code">CreationTime</span> attribute to the voter model so we can put that into the feed. Open up <span class="code">model/voter.erl</span> and change the first line to:</p>
+
+        <pre>-module(voter, [Id, FirstName, LastName, Address, Notes, WardBossId, CreationTime]).
+</pre>
+
+<p>We don't worry too much about migrating the data because Chicago Boss will automatically fill in blanks on the old data next time a particular record retrieved (and drop obsolete fields next time a particular record is updated). We might end up with some weird Year 0 values in existing data, but we can deal.</p>
+
+<p>Anyway, attributes that end in "Time" are treated specially; instead of passing a String to <span class="code">new</span>, we need to pass in either a DateTime tuple or an <span class="code">erlang:now()</span> object. Let's modify the call to <span class="code">voter:new</span> in order to use <span class="code">erlang:now()</span> as the last argument. Open up <span class="code">controller/voter_controller.erl</span> and change these lines:
+
+</p><pre>    Voter = voter:new(id, Req:post_param("first_name"), Req:post_param("last_name"),
+        Req:post_param("address"), Req:post_param("notes"), WardBoss:id()),
+</pre>
+
+<p>To:</p>
+
+<pre>    Voter = voter:new(id, Req:post_param("first_name"), Req:post_param("last_name"),
+        Req:post_param("address"), Req:post_param("notes"), WardBoss:id(), erlang:now()),
+</pre>
+
+<p>Now we can get busy with the RSS feed. Open up a new template called <span class="code">view/voter/rss.html</span> (don't worry about the .html extension, we'll get the MIME type right in a minute). You might be accustomed to fancy RSS generation tools, but forget it, it's easy enough to get things done the old-fashioned way so here we go. Just paste this in:</p>
+
+<pre>{% autoescape on %}&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" 
+        xmlns:dc="http://purl.org/dc/elements/1.1/"&gt;
+   &lt;channel&gt;
+   &lt;title&gt;Chicago Votes&lt;/title&gt;
+   &lt;atom:link href="http://localhost:8001/voter/rss" rel="self" type="application/rss+xml" /&gt;
+   &lt;link&gt;http://localhost:8001/voter/list&lt;/link&gt;
+   &lt;description&gt;All the folks that's fit to vote!&lt;/description&gt;
+   &lt;language&gt;en-us&lt;/language&gt;
+   {% for voter in voters %}
+   {% if forloop.first %}
+   &lt;lastBuildDate&gt;{{ voter.creation_time|date:"r" }}&lt;/lastBuildDate&gt;
+   {% endif %}
+       &lt;item&gt;
+           {% if voter.ward_boss %}
+           &lt;dc:creator&gt;{{ voter.ward_boss.name }}&lt;/dc:creator&gt;
+           {% endif %}
+           &lt;guid isPermaLink="true"&gt;http://localhost:8001/voter/view/{{ voter.id }}&lt;/guid&gt;
+           &lt;link&gt;http://localhost:8001/voter/view/{{ voter.id }}&lt;/link&gt;
+           &lt;title&gt;{{ voter.first_name }} {{ voter.last_name }}&lt;/title&gt;
+           &lt;description&gt;{{ voter.notes }}&lt;/description&gt;
+           &lt;pubDate&gt;{{ voter.creation_time|date:"r" }}&lt;/pubDate&gt;
+       &lt;/item&gt;
+   {% endfor %}
+   &lt;/channel&gt;
+&lt;/rss&gt;{% endautoescape %}
+</pre>
+
+<p>Notice the <span class="code">date</span> filter applied to <span class="code">voter.creation_time</span>. This filter makes our lives a hundred times easier in terms of generating an RFC-822 timestamp, so I kind of lied when I said we didn't have fancy RSS generation tools.</p>
+
+<p>Now we just need to get it glued up. Open up <span class="code">controller/voter_controller.erl</span> and add an action. For now we won't worry about authentication since most RSS feeds are pretty much a secret anyhow.</p>
+
+<pre>rss('GET', []) -&gt;
+    Voters = boss_db:find(voter, [], 20, 0, creation_time, num_descending),
+    {ok, [{voters, Voters}]}.
+</pre>
+
+<p>Internally, dates are stored as integers, so we want to sort numerically (i.e. <span class="code">num_descending</span>). This is the most complicated call to <span class="code">boss_db:find</span> that we've yet seen, but you can find the full documentation for it over in the <a href="http://www.chicagoboss.org/api.html">Chicago Boss API docs</a>.</p>
+
+<p>Point your browser over to the new RSS feed to see what it looks like:</p>
+
+<code>http://localhost:8001/voter/rss</code>
+
+<p>Neat, huh? Now I'm sure you're thinking, WAIT, WHAT ABOUT THE MIME TYPE?? I almost forgot. Change the last line of that <span class="code">rss</span> function to:</p>
+
+<pre>    {ok, [{voters, Voters}],  [{"Content-Type", "application/rss+xml"}]}.
+</pre>
+
+<p>We send Boss additional HTTP headers to return to the client in the third tuple element of the return value, so that's all we need to do to get the MIME type right.</p>
+
+<p>Done!</p>
+
+<p>You're on your own now, kid. To see the (growing) list of other things you can do with Boss, check out the <a href="http://www.chicagoboss.org/api.html">Chicago Boss API docs</a>, and if you want to connect with other Boss users, be sure to join the <a href="http://groups.google.com/group/chicagoboss">Chicago Boss mailing list</a>.</p>
+
+<h2>Part III. The Future Of Chicago Boss</h2>
+
+<div class="quote">
+“Says who?” “Says Boss.”
+</div>
+
+<p>This guide has covered most of the state of the art of Chicago Boss. It's a simple framework that packs a powerful punch. Although there's still a lot of work to be done, I think the design of Boss will make future improvements quite easy.</p>
+
+<p>One class of improvements relates to deployment, code upgrades, and monitoring. I wrote Boss to work on a tiny VPS rather than a huge server cluster, so it's not a big issue for me personally. But given that Chicago Boss is built with Erlang, it should be possible to upgrade code on the fly with no down-time if somebody writes the right scripts. However, it's not there yet.</p>
+
+<p>As you probably noticed during this tour, the <span class="code">/admin</span> interface could use a lot of love. I wrote it in a couple hours, and besides needing aesthetic improvement, it needs to be able to edit records and deal with Time and ForeignId fields more intelligently. And sort the search results.</p>
+
+<p>Fourth, Boss needs a module for doing A/B testing. What I'd really like to see with Boss is a module that implements Bayesian experimental design, which <a href="http://beta.chicagoboss.org/how-not-to-run-an-ab-test.html">avoids some of the problems associated with traditional A/B tests</a>. It'd be even better if Chicago Boss decided for you whether A or B was better and then emailed you a patch getting rid of the losing code.</p>
+
+<p>Fifth, I'd like to see some kind of integration with <a href="http://nitrogenproject.com/">Nitrogen</a>. Nitrogen's magic is mostly on the front-end, whereas Boss really shines on the backend. Both Boss and Nitrogen are housed in Rusty Klophaus's excellent SimpleBridge, so they ought to fit together quite well. I've even thought of an irresistible name for the project: <em>BOSS IN SPACE!!</em></p>
+
+<p>If you might want to get involved in the development of Chicago Boss, or keep up with Chicago Boss news and updates, or just have a couple Chicago Boss questions, the best thing to do is <a href="http://groups.google.com/group/chicagoboss">join the new Chicago Boss mailing list</a>.</p>
+
+<a name="meet-tyrant"></a>
+<h2>Appendix A: Meet The Tyrant</h2>
+
+<p>Chicago Boss is compatible with one and only one database server: <a href="http://1978th.net/tokyotyrant/">Tokyo Tyrant</a>. Unfortunately, Tokyo Tyrant isn't yet available with a simple "apt-get," so this section will go through the details of setting up a Tyrant server on a Mac or Linux machine. It might be the hardest part of the whole guide.</p>
+
+<p>I am told that Mac users can install both Cabinet and Tyrant via <a href="http://www.macports.org/">MacPorts</a>.</p>
+
+<a name="download-cabinet"></a>
+<h4>A.1. Download and Install Tokyo Cabinet</h4>
+
+<p>Tokyo Tyrant requires a software library called <a href="http://1978th.net/tokyocabinet/">Tokyo Cabinet</a>.</p>
+
+<p><em>Mac/Linux:</em></p>
+
+<div class="terminal">
+    wget http://1978th.net/tokyocabinet/tokyocabinet-1.4.44.tar.gz<br>
+    tar xzf tokyocabinet-1.4.44.tar.gz<br>
+    cd tokyocabinet-1.4.44<br>
+    ./configure<br>
+    make<br>
+    sudo make install<br>
+</div>
+
+<a name="download-tyrant"></a>
+<h4>A.2. Download and Install Tokyo Tyrant</h4>
+
+<p>Now we're ready for the Tyrant.</p>
+
+<p><em>Mac and Linux:</em></p>
+
+<div class="terminal">
+    wget http://1978th.net/tokyotyrant/tokyotyrant-1.1.40.tar.gz<br>
+    tar xzf tokyotyrant-1.1.40.tar.gz<br>
+    cd tokyotyrant-1.1.40<br>
+    ./configure<br>
+    make<br>
+    sudo make install<br>
+</div>
+
+<p>If everything went smoothly, Tokyo Tyrant is now installed on your system. To get it up and running in your home directory, just do</p>
+
+<div class="terminal">
+    cd ~<br>
+ttserver -log ttserver.log boss-test.tct
+</div>
+
+<p>That will create a table database called <span class="code">boss-test.tct</span> right in your home directory, along with a log file called <span class="code">ttserver.log</span>. You can stop the database at any time with Control-C. This setup will work fine for now, but if you're planning to do serious development, you will want Tokyo Tyrant running as a daemon under its own username with files in its own directory. The following section will explain how to do that.</p>
+
+<h4>A.3. Configure Boss To Use Tyrant</h4>
+
+<p>Open up <span class="code">boss.config</span> and change this line:</p>
+
+<div class="terminal">
+    {db_driver, boss_db_driver_mock},
+</div>
+
+<p>To this:</p>
+
+<div class="terminal">
+    {db_driver, boss_db_driver_tyrant},
+</div>
+
+<p>You can also set additional database options <span class="code">db_host</span> and <span class="code">db_port</span> if you have a non-standard configuration.</p>
+
+<a name="configure-tyrant"></a>
+<h4>A.4. Configure Tyrant As A Standalone Daemon (Optional, Ubuntu only)</h4>
+
+<p>First, create a user for Tokyo Tyrant:</p>
+
+<div class="terminal">
+sudo adduser --system --no-create-home --group ttserver
+</div>
+
+<p>Next create the three directories that Tyrant will write files in:</p>
+
+<div class="terminal">
+    sudo mkdir /var/run/ttserver<br>
+    sudo mkdir /var/lib/ttserver<br>
+    sudo mkdir /var/log/ttserver<br>
+    sudo chown ttserver:ttserver /var/*/ttserver<br>
+</div>
+
+<p>Finally, Tyrant will need its own init.d script so that it automatically starts up when the computer boots. Here's the script I use, just save it to <span class="code">/etc/init.d/ttserver</span>:</p>
+
+<p><a href="http://beta.chicagoboss.org/ttserver">Download my <span class="code">/etc/init.d/ttserver</span></a></p>
+
+<p>Try out the script by starting up Tyrant:</p>
+
+<div class="terminal">
+sudo /etc/init.d/ttserver start
+</div>
+
+<p>If everything seemed to work, we need to tell the system that we want this script to be run at startup and shutdown. Do it with:</p>
+
+<div class="terminal">
+sudo update-rc.d ttserver defaults
+</div>
+
+<p>Congratulations. You now own your very own Tyrant.</p>
+
+<a name="changes"></a>
+<h2>Appendix B: Changelog</h2>
+<ul>
+    <li>February 28, 2011: Update to Chicago Boss 0.4.5; fix bug in SavedGreeting command; add note about enabling SSL via MacPorts</li>
+    <li>September 7, 2010: Update to Chicago Boss 0.4.0 (Tyrant is optional; Web/ is abolished)</li>
+    <li>June 21, 2010: Bugfix: "has_many" is supposed to be "has"</li>
+    <li>June 15, 2010: Update to Chicago Boss 0.3.6 (views and controllers are now in the Web/ directory)</li>
+    <li>May 27, 2010: Update <span class="code">save()</span> semantics; use new model validation mechanism; update to ChicagoBoss 0.3.3.</li>
+    <li>May 22, 2010: Update to ChicagoBoss 0.3.2; rewrite introduction</li>
+    <li>May 20, 2010: Break "Chicago Boss's Big Secret" into a separate article</li>
+    <li>April 30, 2010: Install Tokyo Cabinet from sources on Linux (<span class="code">apt-get</span> provides wrong version); update <span class="code">wget</span> command to ChicagoBoss-0.3.1 to prevent problems issuing DB commands before loading the "Hello, World!" page</li>
+    <li>April 29, 2010: Initial draft</li>
+</ul>
+
+<p><em><a href="http://beta.chicagoboss.org/">Back to Evan Miller's home page</a></em></p>
+
+            </div>
+        </div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script src="./chicago-boss-guide_files/ga.js" type="text/javascript"></script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-5838049-1");
+pageTracker._trackPageview();
+</script>
+
+
+</body></html>

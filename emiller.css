@@ -1,0 +1,34 @@
+            body {
+                background-color: #5c84b0;
+                background-color: #FEFFA6;
+                background-color: #BAFFC5;
+                font-family: georgia;
+            }
+            img {
+                border: 0;
+            }
+            div#content {
+                top: 0;
+                background-color: white;
+                border: 1px solid #404e61;
+                position: absolute;
+                left: 50%;
+                margin-left: -390px;
+                width: 780px;
+            }
+            div.header {
+                text-align: center;
+                margin: 20px;
+                font-size: 24px;
+            }
+            span.note {
+                font-size: 12px;
+            }
+            div.footer {
+                font-size: 12px;
+                text-align: center;
+                padding: 10px;
+            }
+            div.links {
+                padding: 0px 12px;
+            }

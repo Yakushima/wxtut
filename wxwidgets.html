@@ -1,0 +1,954 @@
+<html>
+
+<head>
+
+<title>Getting Started with wxWidgets in Erlang</title>
+
+	<link rel="stylesheet" type="text/css" href="./chicago-boss-guide_files/emiller.css">
+        <style type="text/css">
+            
+            pre {
+                padding: 10px;
+                background-color: #F5E1E4;
+                font-weight: bold;
+            }
+            a.source {
+                font-family: monospace;
+            }
+            div.aside {
+                border: 2px dashed #5c84b0;
+                margin: 20px;
+                padding: 10px;
+            }
+            div.aside code {
+                background-color: white;
+            }
+            div.figure {
+                border: 1px solid black;
+                margin: 20px;
+                padding: 10px;
+                background-color: #92877B;
+                text-align: center;
+            }
+            div.quote {
+                text-align: center;
+                font-style: italic;
+                padding: 5px;
+            }
+            div.terminal {
+                font-family: monospace;
+                margin: 10px;
+                padding: 10px;
+                background-color: #FDFFD9;
+            }
+            span.code {
+                font-family: monospace;
+                font-weight: bold;
+                font-size: 14px;
+            }
+        </style>
+
+</head>
+
+<body>
+
+        <div id="content">
+            <div style="padding: 10px;">
+
+<center>
+<h1>Getting Started with wxWidgets in Erlang</h1>
+<br>
+<em>(DRAFT - 2011-03-08)</em>
+<br>
+Michael Turner
+<br>
+Tama Translation Systems
+</center>
+
+
+<h2>Introduction</h2>
+<p>
+<a href="http://en.wikipedia.org/wiki/Erlang_(programming_language)">Erlang</a> is a programming language used mostly on the server side,
+although at least one popular graphics-intensive application,
+	<a href="http://www.wings3d.com/">Wings 3D</a>,
+has been written in it.
+
+The best-supported graphics API for Erlang is
+	<a href="http://www.wxwidgets.org/">wxWidgets</a>,
+a large, mature, stable multi-platform API for GUI programming.
+
+<p>
+This tutorial shows you how to use basic wxWidgets in Erlang.
+
+
+
+<h3>Table of Contents</h3>
+
+<ol>
+  <li><a href="#howandwhy">The How and Why of This Tutorial</a>
+    <ol>
+      <li><a href="#keepthosefingersmoving">Keep Those Fingers Moving</a></li>
+      <li><a href="#objectionoverruled">Objection? Overruled!</a></li>
+    </ol>
+  </li>
+  <li><a href="#settingup">Setting Up</a>
+    <ol>
+      <li><a href="#findthewxheaderfiles">Find the wx header files</a></li>
+      <li><a href="#readwxmoduledefinitions">Read wx module definitions</a></li>
+      <li><a href="#initializewx">Initialize wx</a></li>
+    </ol>
+  </li>
+  <li><a href="#framesataste">Frames: A Taste</a>
+    <ol>
+      <li><a href="#makeaframe">Make a frame</a></li>
+      <li><a href="#recoveringfromshellexceptions">Recovering from shell exceptions</a></li>
+      <li><a href="#framescreativedestruction">Frames: creative destruction</a> </li>
+    </ol>
+  </li>
+  <li><a href="#thestatusbar">The Status Bar</a>
+    <ol>
+      <li><a href="#makeastatusbar">Make a Status Bar</a></li>
+      <li><a href="#setthestatusbartext">Set the Status Bar Text</a></li>
+    </ol>
+  </li>
+  <li><a href="#themenubar">The Menu Bar</a>
+    <ol>
+      <li><a href="#makeamenubar">Make a Menu Bar</a></li>
+      <li><a href="#setthemenubarforaframe">Set the Menu Bar for a Frame</a></li>
+    </ol>
+  </li>
+  <li><a href="#menus">Menus</a>
+    <ol>
+      <li><a href="#makeamenu">Make a Menu</a></li>
+      <li><a href="#addamenuitem">Add a Menu Item</a></li>
+      <li><a href="#makeahelpmenu">Make a Help Menu</a></li>
+    </ol>
+  </li>
+  <li><a href="#events">Events</a>
+    <ol>
+      <li><a href="#usingconnecttoseeevents">Using connect to see events</a></li>
+      <li><a href="#menuselectionevents">Menu selection events</a></li>
+      <li><a href="#callbacks">Callbacks</a></li>
+    </ol>
+  </li>
+</ol>
+
+<a name="howandwhy"></a>
+<h2>The How and Why of This Tutorial</h2>
+
+This tutorial's approach is highly interactive:
+you make each new wxWidget call work at the Erlang shell command line, first.
+You <i>see</i> it work, immediately.
+Only afterward do you add it to a program.  For example:
+<br>
+<br>
+<center>
+<table border="1" cellpadding="5">
+ <tr><td>
+<p>
+To put some text in the status bar, type this at the command line:
+<p>
+<code>
+	wxFrame:setStatusText(F, "Quiet here.").
+</code></blockquote>
+
+<p>
+Now you should see this:
+
+<p>
+<center> <img src="QuietStatus.JPG" /> </center>
+</td></tr>
+</table>
+An example step of the tutorial
+</center>
+
+<p>
+This approach is better for learning GUI programming.
+Here's why:
+
+<ul>
+<li><b>Short and clear</b>
+<p>Most tutorials rely on GUI code samples for entire programs.
+Problem: even the simplest ones can take more than a page.
+And they aren't just long, they're <i>wide</i> and <i>dense</i>:
+GUI calls can take a lot of parameters.
+It's easier to focus on one line (or two) at a time, one result at a time.
+The Erlang shell helps you do that.
+You'll also see more easily see what you did wrong, when you make mistakes.
+</li>
+
+<li><b>Quick feedback</b>
+<p>
+When you look at GUI code, you often wonder:
+what's really happening, and when?
+At the command line, you know.
+Or you can at least find out.
+Immediately.
+Before anything else has a chance to happen.
+(And if what happened is something wrong, you'll know right then as well.)
+</li>
+<li><b>Less scary (or less boring)</b>
+<p>
+Look at any "Hello, World!" program for any GUI, in any language.
+If you already know GUI APIs, you'll yawn:
+so many inconsequential differences to learn.
+If you don't, you'll shudder: <i>so much to learn</i>.
+Either way, if you go a few lines at a time, it's easier to take it all in.
+</ul>
+
+<a name="keepthosefingersmoving"></a>
+<h3>Keep Those Fingers Moving</h3>
+<p>
+Do you want to get the most out of this tutorial?
+Do you have a computer-readable copy of it, on your computer running Erlang?
+Then here's the most important thing:
+<i>don't copy-paste lines from the tutorial into the shell.</i>
+Would you try to learn to speak a language by recording other people's spoken sentences,
+then playing them back?
+Where the tutorial says to type lines in, <i>type them in.</i>
+<p>
+It can be hard to resist the temptation to copy-paste.
+Print lessons out and work through the hardcopy,
+or get them in book form (e-book or dead-tree.)
+This helps in another way:
+It leaves more screen space.  At times, you'll need it.
+You'll have an Erlang shell window,
+some GUI elements displayed (one would hope so!),
+and often a program editor.
+Sometimes you'll want to see them all at the same time.
+
+<a name="objectionoverruled"></a>
+<h3>Objection? Overruled!</h3>
+<p>
+Of course there are drawbacks to this approach.
+Nothing's perfect.
+Some likely objections:
+
+<ul>
+<li>
+<i>"Typing in everything means making a lot of mistakes."</i>
+<p>
+Of course it does.  That's good.  Mistakes help you learn.
+</li>
+<li>
+<i>"It's a lot of typing."</i>
+<p>
+Maybe you're worried about tendinitis flare-ups?
+Consider: stress is also a tendinitis risk factor.
+Learning new programming techniques is stressful even when it's fun.
+This is a lower-stress way to learn.
+Also: you'll be reminded to take a break after each (short) lesson.
+Finally, where it's reasonable to do so,
+the tutorial will make it easy to 'recycle' lines already typed,
+and will use short variable names.
+</li>
+<li>
+<i>"It'll take a lot of time!"</i>
+
+<p>
+Face it: you're learning a GUI API.
+Those were never small.
+These days they're huge.
+Getting started will take days.
+Delving deeper into the basics will take weeks.
+If you're writing a serious GUI for an Erlang program,
+you could be at it for months.
+And what if your program is successful and becomes popular?
+Now we're talking about years.
+</li>
+</ul>
+
+<p>
+Ask yourself: how would you be learning otherwise?
+By staring at turgid sample code?
+Flipping through cryptic manual pages?
+Reading a wordy book that too often <i>describes</i> what it could be <i>showing</i> you?
+You probably already know how well <i>that</i> works.
+
+<p>
+Learning this way is more fun.
+It will <i>seem</i>, at least, like it's not taking very long.
+It might also mean you learn faster even in real time.
+(For one thing, you'll probably procrastinate less.)
+
+<p>
+There will be times with wxWidgets when it will be no fun at all.
+So why not get started the fun way?
+
+<p>
+Why not get started right now?
+
+<a name="settingup"></a>
+<h2>Setting Up</h2>
+<p>
+Unlike systems designed specifically for rapid prototyping of GUIs,
+like Tcl/Tk,
+there's some rather artificial preparation required to start doing
+graphics from the Erlang shell command line.  This section leads you through the steps.
+
+In this part, it's assumed you that you already
+<nl>
+ <li>have Erlang installed properly (see <a href="">Appendix A</a> [TBD]);
+ </li>
+ <li>have <a href="http://www.erlang.org/doc/man/shell.html">
+              learned
+          </a>
+      how to use the Erlang shell;
+ </li>
+ <li>have the use of a
+       <a href="http://en.wikipedia.org/wiki/Text_editor">
+         text editor
+       </a>appropriate for writing programs.
+ </li>
+</nl>
+
+<p>
+To get started, prepare your Erlang shell session to make understanding easier.
+Seeing is believing - but only if you can see things clearly.
+Not all <code>wx</code> calls will give you graphical results.
+Often you'll see only return values from <code>wx</code> calls.
+These can be cryptic, especially if you're not used to Erlang.
+Erlang being a functional language, every <code>wx</code> call returns a value.
+Many of these values will be
+ <a href="http://www.erlang.org/doc/reference_manual/data_types.html#id67146">
+  <i>tuples</i>
+ </a>.
+Many of those tuples will be the contents of
+ <a href="http://www.erlang.org/doc/reference_manual/records.html">
+  <i>records</i>
+ </a>.
+It's easier to understand <code>wx</code> return values shown in record format.
+
+<a name="findthewxheaderfiles"></a>
+<h3>Find the wx header files</h3>
+The Erlang shell needs to be told the <code>wx</code> record definitions, however.
+So: where are those record definitions?
+
+<p>
+Find where <code>wx</code> lives on your system.  Type this:
+
+<blockquote><code>
+	My_wx_dir = code:lib_dir(wx).
+</code></blockquote>
+
+On Windows XP, <code>My_wx_dir</code> might look something like this:
+
+<blockquote><code>
+	"c:/PROGRA~1/ERL57~1.2/lib/wx-0.98.2"
+</code></blockquote>
+
+<a name="readwxmoduledefinitions"></a>
+<h3>Read wx module definitions</h3>
+Read the <code>wx</code> record definitions from that directory:
+
+<blockquote><code>
+	rr (My_wx_dir ++ "/include/wx.hrl").
+<br>
+	rr (My_wx_dir ++ "/src/wxe.hrl").
+</code></blockquote>
+
+Both <code>rr</code> calls should return a list of modules.
+If you get the <code>rr</code> calls wrong, you'll get empty lists back.
+
+<p>
+Open your text editor, if you haven't already.
+Paste the three commands above to a scratch file.
+Later,
+when you start a new lesson, or resume one,
+or when you need to restart because of a crash,
+you can copy-paste them into the shell,
+
+Try this now, to make sure it works.
+Quit Erlang, restart it, then copy-paste those commands into the shell.
+
+<p>
+Unfortunately, we can't use
+ <a href="http://www.erlang.org/doc/reference_manual/macros.html#id78322">
+  Erlang macro definitions
+ </a>
+in the shell.
+That's another good reason to locate the <code>wx.hrl</code>:
+to look up <code>wx</code> macro symbol values as needed for shell commands.
+
+<a name="initializewx"></a>
+<h3>Initialize <code>wx</code></h3>
+
+<p>
+To start <code>wx</code> up, type this:
+
+<blockquote><code>
+	Wx=wx:new().
+</code> </blockquote>
+
+Did it work?
+Maybe there's a message saying
+ <a href="http://www.erlang.org/doc/installation_guide/INSTALL.html#Support-for-SMP-Symmetric-Multi-Processing">
+  SMP (symmetric multiprocessing)
+ </a>
+isn't enabled,
+or "SMP emulator required."
+In some Windows Erlang releases, SMP isn't enabled by default.
+Exit the Erlang shell and restart it with a "-smp" flag,
+e.g., with a DOS command like this:
+<blockquote>
+ <code>"C:\Program Files\erl5.8.1.1\bin\werl.exe" -smp</code>
+</blockquote>
+
+then try again.
+
+<p>
+When <code>wx:new()</code> works, you'll get a record back, something like this:
+
+<blockquote><code>
+	#wx_ref{ref = 0,type = wx,state = []}
+</code> </blockquote>
+
+These are only one per process, and the Erlang shell is a process.
+Ignore the value for now.
+
+<a name="framesataste"></a>
+<h2>Frames: A Taste</h2>
+
+<p>
+In <code>wxWidgets</code>, a window is just a kind of
+ <a href="http://docs.wxwidgets.org/2.6/wx_wxframe.html">frame</a>.
+Let's make a simple one, then add to it.
+
+<a name="makeaframe"></a>
+<h3>Make a frame</h3>
+
+<p>
+To make a frame, type this:
+
+<blockquote><code>
+	F=wxFrame:new(Wx, -1, "Hello, World!").
+</code></blockquote>
+
+<p><blockquote><b>[Explain the -1 part.]</b></blockquote>
+
+<p>
+But where is it?
+We got a record back, something like this:
+
+<blockquote><code>
+	#wx_ref{ref = 35,type = wxFrame,state = []}
+</code></blockquote>
+
+But nothing changed elsewhere on the screen.  Why not?
+Because you must ask to see the frame.
+
+Type this:
+
+<blockquote><code>
+	wxFrame:show(F).
+</code></blockquote>
+
+This should return <code>true</code>.
+Now you should be able to see something like this:
+
+<p>
+<center> <img src="blankframe.GIF" /> </center>
+
+<a name="recoveringfromshellexceptions"></a>
+<h3>Recovering from shell exceptions</h3>
+
+<p><blockquote><b>[Mention this earlier?]</b></blockquote>
+
+<p>
+To get rid of the frame, you could just click the close control.
+But first try this nonsense call instead:
+
+<blockquote><code>
+	nothing:doing().
+</code></blockquote>
+
+That made the frame disappear, along with the exception error message.
+This is because ....
+
+<p><blockquote><b>[WHY IS THIS, ANYWAY?]</b></blockquote>
+
+<p>
+This kind of total GUI loss could happen a lot, just from keying errors.
+You have to start over.
+You don't want to type everything in from the beginning, when it happens.
+Take some time to paste what you've typed above into the scratch file.
+The commands so far should now look like this:
+
+<blockquote><code>
+	My_wx_dir = code:lib_dir(wx).
+<br>
+	rr (My_wx_dir ++ "/include/wx.hrl").
+<br>
+	rr (My_wx_dir ++ "/src/wxe.hrl").
+<br>
+	Wx=wx:new().
+<br>
+	F=wxFrame:new(Wx, -1, "Hello, World!").
+<br>
+	wxFrame:show(F).
+</code></blockquote>
+
+<p>
+Now, if you make a mistake, you can get back to where you left off.
+Just quit (<code>q()</code>) Erlang, restart, and copy-paste from that file.
+In future exercises, you'll see how to get around this.
+
+<a name="framescreativedestruction"></a>
+<h3>Frames: creative destruction</h3>
+
+<p>
+With the frame displayed again, type this:
+
+<blockquote><code>
+	wxFrame:destroy(F).
+</code></blockquote>
+
+It should return <code>ok</code> and the frame should disappear.
+
+Now, just for fun, make some new frames.
+Scroll back through the commands, and, by editing them:
+<ol>
+<li>Make a <code>wxFrame F1</code> with title "Hey!"</li>
+<li>Show <code>F1</code>.</li>
+<li>Make a <code>wxFrame F2</code> with title "Boo!"</li>
+<li>Show <code>F2</code>.</li>
+<li>Then <code>wxFrame:destroy</code> them both.</li>
+</ol>
+
+Don't bother pasting those last few commands into your scratch file, though.
+We'll be building from where we left off with first <code>destroy</code> call.
+
+<a name="thestatusbar"></a>
+<h2>The Status Bar</h2>
+
+<p>
+A status bar is handy not just for program features, but also debugging.
+At this point, you might want to quit and restart.
+Paste your scratchpad contents into the shell.
+
+<a name="makeastatusbar"></a>
+<h3>Make a Status Bar</h3>
+
+<p>
+Type this in:
+
+<blockquote><code>
+	wxFrame:createStatusBar(F,[]).
+</code></blockquote>
+
+<p><blockquote><b>[Explain 2nd param]</b></blockquote>
+
+<p>
+Your frame should now look like this:
+
+<p>
+<center> <img src="EmptyStatusBar.JPG" /> </center>
+
+<a name="setthestatusbartext"></a>
+<h3>Set the Status Bar Text</h3>
+
+<p>
+Put some text in the status bar:
+
+<blockquote><code>
+	wxFrame:setStatusText(F, "Quiet here.").
+</code></blockquote>
+
+<p>
+You should now see this:
+
+<p>
+<center> <img src="QuietStatus.JPG" /> </center>
+
+<p>
+Take a moment to add these commands to your scratchpad startup.
+Try setting the status to some other things, then back to "Quiet here."
+Scroll back and edit your previous <code>setStatusText</code> call:
+
+<blockquote><code>
+	wxFrame:setStatusText(F, "OK").
+<br>
+	wxFrame:setStatusText(F, "Not OK").
+<br>
+	wxFrame:setStatusText(F, "Quiet here.").
+</code></blockquote>
+
+
+<a name="themenubar"></a>
+<h2>The Menu Bar</h2>
+
+Frames in wxWidgets conventionally have one menu bar.
+In this way, the menu bar is like the status bar.
+However, menu bars are usually made up of other things:
+They need to be composed of menus.
+<p>
+In wxWidgets, complex things are usually composed from the bottom up.
+The wxWidgets API makes no assumptions about what goes inside what.
+For the more complex things, it takes more steps to make anything you can see.
+<p>
+Let's get a menu bar visible as soon as possible.
+Consider copying each command below to your scratchpad/restart file, as you go.
+
+<a name="makeamenubar"></a>
+<h3>Make a Menu Bar</h3>
+
+<p>
+Type this:
+
+<p>
+<blockquote><code>
+	MenuBar = wxMenuBar:new().
+</code></blockquote>
+
+<p>
+You'll get something like this back:
+
+<p>
+<blockquote><code>
+	#wx_ref{ref = 37,type = wxMenuBar,state = []}
+</code></blockquote>
+
+But you see no menu bar in the window frame.
+Nothing changed in the window.
+What could be the problem?
+
+<p>
+Well, did we say <i>how</i> this menu bar relates to any frame?
+<i>You</i> know where you want it to go.
+But <code>wx</code> can't read your mind.
+Yes, <code>F</code> is your only window frame so far.
+But <code>wx</code> doesn't assume you want to put <code>MenuBar</code> in <code>F</code>.
+
+<a name="setthemenubarforaframe"></a>
+<h3>Set the Menu Bar for a Frame</h3>
+
+<p>
+Try this: making <code>MenuBar</code> a part of <code>wxFrame F</code>.
+
+<p>
+<blockquote><code>
+	wxFrame:setMenuBar (F, MenuBar).
+</code></blockquote>
+
+Maybe that returns <code>ok</code> but ... still you see nothing!
+Did anything actually happen?
+There's a way to ask about a frame's menu bar.
+Type this:
+
+<p>
+<blockquote><code>
+	wxFrame:getMenuBar (F).
+</code></blockquote>
+
+<p>
+What do you get back in the shell?
+It's the same <code>wx_ref</code> returned from the <code>setMenuBar</code> call. 
+Something's happening.
+The problem is: there are no menus to show anyway.
+Let's do something about that.
+
+<a name="menus"></a>
+<h2>Menus</h2>
+
+<p>
+It'll take a few steps to add a menu item and display it.
+
+<a name="makeamenu"></a>
+<h3>Make a Menu</h3>
+
+<p>
+Most application GUIs have a File menu.  Type this:
+
+<blockquote><code>
+	FileMn = wxMenu:new().
+</code></blockquote>
+
+<p>
+You should get something like this:
+
+<p>
+<blockquote><code>
+	#wx_ref{ref = 37,type = wxMenu,state = []}
+</code></blockquote>
+
+<p>
+Again, wxWidgets doesn't know where you want this menu to go.
+You have to say which menu bar <code>FileMn</code> will attach to.
+
+Add (<code>append</code>) your <code>FileMn</code> to the <code>wxMenuBar</code>
+ of <code>wxFrame F</code>.
+Use the conventional File menu label.
+
+<p>
+<blockquote><code>
+	wxFrame:append (MenuBar, FileMn, "&File").
+</code></blockquote>
+
+<p>
+(The ampersand before 'F' means that entering Alt-F will be like clicking on the menu.)
+<p>
+You should see a change -- something like this:
+<p>
+<center> <img src="FileMenu.JPG" /> </center>
+
+<p>
+But what good is a menu without menu items?
+Click on the File menu (or press Alt F).
+Nothing happens.
+
+<blockquote><b>[Well, the status bar clears.  What's with that?]</b></blockquote>
+
+<a name="addamenuitem"></a>
+<h3>Add a Menu Item</h3>
+
+<p>
+Every File menu has a Quit menu item.
+Let's make one.
+Type this:
+
+<p>
+<blockquote><code>
+	Quit = wxMenuItem:new ([{id,400},{text, "&Quit"}]).
+</code></blockquote>
+
+<blockquote><b>[Explain that {id,400} thing.]</b></blockquote>
+
+<p>
+Again, you won't see anything.
+A menu is like a menu bar: you need to add something to make it visible.
+
+<p>
+<blockquote><code>
+	wxMenu:append (FileMn, Quit).
+</code></blockquote>
+
+<p>
+Click on the File menu (or type Alt F).  You should see this:
+
+<p>
+<center> <img src="FileQuit.JPG" /> </center>
+
+<p>
+Reviewing all the commands for the simple menu you've made, you should see:
+
+<blockquote><code>
+MB = wxMenuBar:new().
+<br>
+wxFrame:setMenuBar (F, MB).
+<br>
+FileMn = wxMenu:new().
+<br>
+wxMenuBar:append (MB, FileMn,"&File").
+<br>
+Quit = wxMenuItem:new ([{id,400},{text, "&Quit"}]).
+<br>
+wxMenu:append (FileMn, Quit).
+</code></blockquote>
+
+<p>
+What else can we add?
+Every decent app has a Help menu.
+And every Help menu should have an About item.
+
+<a name=makeahelpmenu></a>
+<h3>Make a Help Menu</h3>
+<p>
+Recycle your <code>new</code> and <code>append</code> commands above.
+
+<p>
+<blockquote><code>
+	HelpMn = wxMenu:new().
+<br>
+	wxMenuBar:append (MB, HelpMn, "&Help").
+<br>
+</code></blockquote>
+
+<p>You should see something like this:
+
+<p>
+<center> <img src="MenuAbout.JPG" /> </center>
+
+<p>
+Now add the About item.
+Recycle the commands from your adding of the Quit item to the File Menu.
+You'll put together commands like this:
+
+<blockquote><code>
+	About = wxMenuItem:new ([{id,500},{text,"About"}]). % note id diff
+<br>
+	wxMenu:append (HelpMn, About)
+</code></blockquote>
+
+<p>
+Click on the Help menu. 
+You should see something like this:
+
+<p>
+<center> <img src="HelpAbout.JPG" /> </center>
+
+<p>
+Take a moment to copy-paste the above commands to your scratchpad.
+
+<a name="events"></a>
+<h2>Events</h2>
+
+<p>
+Up to now, we've done nothing with events.
+You might think there are no events to see.
+If you entered "<code>flush()</code>" now, you'd see nothing.
+But in fact, every mouse click is triggering events inside wxWidgets.
+They are being handled in some default manner by <code>wx</code>.
+Often, the <code>wx</code> default is to ignore them.
+Let's catch an event, to see what it looks like.
+
+<a name="usingconnecttoseeevents"></a>
+<h3>Using <code>connect</code> to see events</h3>
+<p>
+Type this:
+
+<blockquote><code>
+	wxFrame:connect (F, close_window).
+</code></blockquote>
+
+<p>
+Click on the close control for the frame, then type this:
+
+<p>
+<blockquote><code>
+	flush().
+</code></blockquote>
+
+<p>
+You should get back something like this:
+
+<p>
+<blockquote><code>
+	Shell got {wx,-202,{wx_ref,35,wxFrame,[]},[],{wxClose,close_window}}
+</code></blockquote>
+
+<p>
+Note that clicking the close control doesn't close the window frame anymore.
+You've overridden the default action.
+
+<p>
+Click on that control a few times, then minimize and maximize the window.
+Try calling <code>flush</code> again.
+You see your <code>close_window</code> events, but no minimize/maximize events.
+
+<p>
+Also note how the Erlang shell writes out received events:
+It doesn't use the <code>wx</code> record definitions read in earlier.
+You're just seeing raw tuples.
+This makes it harder to know what these <code>wx</code> events are about.
+
+<p>
+There's a way to see the events using the record definitions.
+The following fun returns an event sent to the shell (or <code>empty</code>, if none).
+Type it in:
+
+<p>
+<blockquote><code>
+	Ev = fun() -> receive E->E after 0 -> empty end end.
+</code></blockquote>
+
+<p>
+Click on the close control again, then call the event-reader.
+
+<blockquote><code>
+	Ev().
+</code></blockquote>
+
+<p>
+You should see something like this:
+
+<blockquote><code>
+<pre>
+#wx{id = -202,
+    obj = #wx_ref{ref = 35,type = wxFrame,state = []},
+    userData = [],
+    event = #wxClose{type = close_window}}
+</pre>
+</code></blockquote>
+
+<a name="menuselectionevents"></a>
+<h3>Menu selection events</h3>
+<p>
+Let's try connecting to more events.  Type this:
+
+<p>
+<blockquote><code>
+	wxFrame:connect (F, command_menu_selected).
+</code></blockquote>
+
+<p>
+Now try some menu selections.
+Select the File menu's Quit, then the Help menu's About.
+Then enter <code>Ev()</code> to look at the events generated.
+Except for <code>id</code>, the resulting events are the same.
+
+<p>
+<blockquote><code>
+<pre>
+#wx{id = 400,
+    obj = #wx_ref{ref = 35,type = wxFrame,state = []},
+                  userData = [],
+                  event = #wxCommand{type = command_menu_selected,
+				     cmdString = [],
+				     commandInt = 0,
+				     extraLong = 0}}
+</pre>
+</code></blockquote>
+
+<p>
+<a name=callbacks></a>
+<h3>Callbacks</h3>
+
+<p>
+It's good to know that events are happening.
+Sometimes it's helpful to be able to see the details.
+But most of the time, we just want (non-default) things to <i>happen</i> after in response to events.
+So we have to catch events and figure out what to do with them.
+<p>
+Events in <code>wx</code> are handled in
+ <a href="http://en.wikipedia.org/wiki/Callback_(computer_programming)">
+  <i>callback</i> functions.
+ </a>
+First, let's make a function to call.
+Type this:
+
+<p>
+<blockquote><code>
+	Ding = fun (_,_) -> wx_misc:bell() end.
+</code></blockquote>
+
+<p>
+Try it, using the types of parameters expected for these callbacks:
+
+<p>
+<blockquote><code>
+	Ding(#wx{},#wx_ref{}).
+</code></blockquote>
+
+<p>
+Does it ring a bell? 
+It should.
+
+<p>
+Now connect it to your <code>wxFrame F</code> through the event <code>close_window</code>
+
+<p>
+<blockquote><code>
+	wxFrame:connect (F, close_window, [{callback, Ding}]).
+</code></blockquote>
+
+<p>
+Try clicking the close control on the frame again.
+It should just beep.
+Try calling <code>Ev</code>.
+It should no longer return <code>close_window</code> events.
+
+
+            </div>
+        </div>
+</body>
+</html>
