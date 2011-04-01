@@ -282,8 +282,8 @@ Why not get started right now?
 <h2>Setting Up</h2>
 <p>
 Unlike systems designed specifically for rapid prototyping of GUIs,
-like Tcl/Tk,
-there's some rather artificial preparation required to start doing
+like <a href="http://www.tcl.tk">Tcl/Tk</a>,
+there's some preparation required to start doing
 graphics from the Erlang shell command line.  This section leads you through the steps.
 
 In this part, it's assumed you that you already
@@ -304,11 +304,17 @@ In this part, it's assumed you that you already
 
 <p>
 To get started, prepare your Erlang shell session to make understanding easier.
+
+<a name="findthewxheaderfiles"></a>
+<h3>Find the wx header files</h3>
+
+<p>
 Seeing is believing - but only if you can see things clearly.
-Not all <code>wx</code> calls will give you graphical results.
-Often you'll see only return values from <code>wx</code> calls.
-These can be cryptic, especially if you're not used to Erlang.
-Erlang being a functional language, every <code>wx</code> call returns a value.
+Not all <code>wx</code> calls will give you clear graphical results;
+In the Erlang shell session, you'll often see only return values.
+These values can be cryptic, especially if you're not used to Erlang.
+Since Erlang is a functional language,
+every <code>wx</code> call returns a value.
 Many of these values will be
  <a href="http://www.erlang.org/doc/reference_manual/data_types.html#id67146">
   <i>tuples</i>
@@ -318,9 +324,6 @@ Many of those tuples will be the contents of
   <i>records</i>
  </a>.
 It's easier to understand <code>wx</code> return values shown in record format.
-
-<a name="findthewxheaderfiles"></a>
-<h3>Find the wx header files</h3>
 The Erlang shell needs to be told the <code>wx</code> record definitions, however.
 So: where are those record definitions?
 
@@ -424,17 +427,20 @@ To make a frame, type this:
 	F=wxFrame:new(Wx, -1, "Hello, World!").
 </code></blockquote>
 
-<p><blockquote><b>[Explain the -1 part.]</b></blockquote>
+<p>
+(The second parameter can be an integer ID.
+The -1 tells wxWidgets to assign the frame some ID by default.)
 
 <p>
-But where is it?
+Now, where is this new frame?
 We got a record back, something like this:
 
 <blockquote><code>
 	#wx_ref{ref = 35,type = wxFrame,state = []}
 </code></blockquote>
 
-But nothing changed elsewhere on the screen.  Why not?
+But nothing changed elsewhere on the screen.
+Why not?
 Because you must ask to see the frame.
 
 Type this:
@@ -452,8 +458,6 @@ Now you should be able to see something like this:
 <a name="recoveringfromshellexceptions"></a>
 <h3>Recovering from shell exceptions</h3>
 
-<p><blockquote><b>[Mention this earlier?]</b></blockquote>
-
 <p>
 To get rid of the frame, you could just click the close control.
 But first try this nonsense call instead:
@@ -463,18 +467,28 @@ But first try this nonsense call instead:
 </code></blockquote>
 
 That made the frame disappear, along with the exception error message.
-This is because ....
-
-<p><blockquote><b>[WHY IS THIS, ANYWAY?]</b></blockquote>
+This is because wxWidgets runs the graphics in its own process,
+and exceptions not caught in the shell kill any process started there.
 
 <p>
 This kind of total GUI loss could happen a lot, just from keying errors.
-You have to start over.
+You'd have to start over whenever you made an exception-raising error.
 You don't want to type everything in from the beginning, when it happens.
-Take some time to paste what you've typed above into the scratch file.
+So, before you do anything else in a shell session, give the command
+
+<blockquote><code>
+	catch_exception (true).
+	</code>
+</blockquote>
+
+You'll probably take breaks from this tutorial anyway.
+Set things up so that you can take up where you left off.
+Paste what you've typed above into the scratch file.
 The commands so far should now look like this:
 
 <blockquote><code>
+	catch_exception (true).
+<br>
 	My_wx_dir = code:lib_dir(wx).
 <br>
 	rr (My_wx_dir ++ "/include/wx.hrl").
@@ -487,11 +501,6 @@ The commands so far should now look like this:
 <br>
 	wxFrame:show(F).
 </code></blockquote>
-
-<p>
-Now, if you make a mistake, you can get back to where you left off.
-Just quit (<code>q()</code>) Erlang, restart, and copy-paste from that file.
-In future exercises, you'll see how to get around this.
 
 <a name="framescreativedestruction"></a>
 <h3>Frames: creative destruction</h3>
@@ -533,10 +542,8 @@ Paste your scratchpad contents into the shell.
 Type this in:
 
 <blockquote><code>
-	wxFrame:createStatusBar(F,[]).
+	wxFrame:createStatusBar(F).
 </code></blockquote>
-
-<p><blockquote><b>[Explain 2nd param]</b></blockquote>
 
 <p>
 Your frame should now look like this:
@@ -562,17 +569,21 @@ You should now see this:
 
 <p>
 Take a moment to add these commands to your scratchpad startup.
-Try setting the status to some other things, then back to "Quiet here."
-Scroll back and edit your previous <code>setStatusText</code> call:
+Try setting the status to some other string values, then back to "Quiet here."
+
+<p>
+You might also try this:
 
 <blockquote><code>
-	wxFrame:setStatusText(F, "OK").
+	SB = wxFrame:getStatusBar(F).
 <br>
-	wxFrame:setStatusText(F, "Not OK").
+	wxStatusBar:pushStatusText(SB, "A LITTLE LOUDER NOW.").
 <br>
-	wxFrame:setStatusText(F, "Quiet here.").
+	wxStatusBar:popStatusText(SB).
 </code></blockquote>
 
+<p>
+You should end up with the same status bar text you started with.
 
 <a name="themenubar"></a>
 <h2>The Menu Bar</h2>
@@ -681,7 +692,7 @@ Use the conventional File menu label.
 
 <p>
 <blockquote><code>
-	wxFrame:append (MenuBar, FileMn, "&File").
+	wxMenuBar:append (MenuBar, FileMn, "&File").
 </code></blockquote>
 
 <p>
@@ -711,10 +722,12 @@ Type this:
 	Quit = wxMenuItem:new ([{id,400},{text, "&Quit"}]).
 </code></blockquote>
 
-<blockquote><b>[Explain that {id,400} thing.]</b></blockquote>
+<p>(The menu item ID -- 400 here -- must be specified;
+without one, wxWidgets won't generate a default,
+and you won't get a menu item. <b>CHECK THIS.</b>)
 
 <p>
-Again, you won't see anything.
+Again, you won't see any graphical change, just a return value in the shell.
 A menu is like a menu bar: you need to add something to make it visible.
 
 <p>
@@ -732,13 +745,13 @@ Click on the File menu (or type Alt F).  You should see this:
 Reviewing all the commands for the simple menu you've made, you should see:
 
 <blockquote><code>
-MB = wxMenuBar:new().
+MenuBar = wxMenuBar:new().
 <br>
-wxFrame:setMenuBar (F, MB).
+wxFrame:setMenuBar (F, MenuBar).
 <br>
 FileMn = wxMenu:new().
 <br>
-wxMenuBar:append (MB, FileMn,"&File").
+wxMenuBar:append (MenuBar, FileMn,"&File").
 <br>
 Quit = wxMenuItem:new ([{id,400},{text, "&Quit"}]).
 <br>
@@ -759,7 +772,7 @@ Recycle your <code>new</code> and <code>append</code> commands above.
 <blockquote><code>
 	HelpMn = wxMenu:new().
 <br>
-	wxMenuBar:append (MB, HelpMn, "&Help").
+	wxMenuBar:append (MenuBar, HelpMn, "&Help").
 <br>
 </code></blockquote>
 
@@ -769,12 +782,12 @@ Recycle your <code>new</code> and <code>append</code> commands above.
 <center> <img src="MenuAbout.JPG" /> </center>
 
 <p>
-Now add the About item.
-Recycle the commands from your adding of the Quit item to the File Menu.
-You'll put together commands like this:
+Now add the About menu item.
+Recycle the commands you used to add the Quit item to the File Menu.
+You'll put together commands like this (note the different id value):
 
 <blockquote><code>
-	About = wxMenuItem:new ([{id,500},{text,"About"}]). % note id diff
+	About = wxMenuItem:new ([{id,500},{text,"About"}]).
 <br>
 	wxMenu:append (HelpMn, About)
 </code></blockquote>
@@ -906,7 +919,8 @@ Except for <code>id</code>, the resulting events are the same.
 <p>
 It's good to know that events are happening.
 Sometimes it's helpful to be able to see the details.
-But most of the time, we just want (non-default) things to <i>happen</i> after in response to events.
+But most of the time,
+we just want (non-default) things to <i>happen</i> in response to events.
 So we have to catch events and figure out what to do with them.
 <p>
 Events in <code>wx</code> are handled in
