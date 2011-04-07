@@ -58,7 +58,7 @@
 <center>
 <h1>Getting Started with wxWidgets in Erlang</h1>
 <br>
-<em>(DRAFT - 2011-03-08)</em>
+<em>(DRAFT - 2011-04-07)</em>
 <br>
 Michael Turner
 <br>
@@ -124,11 +124,20 @@ This tutorial shows you how to use basic wxWidgets in Erlang.
       <li><a href="#makeahelpmenu">Make a Help Menu</a></li>
     </ol>
   </li>
+
   <li><a href="#events">Events</a>
     <ol>
       <li><a href="#usingconnecttoseeevents">Using connect to see events</a></li>
       <li><a href="#menuselectionevents">Menu selection events</a></li>
       <li><a href="#callbacks">Callbacks</a></li>
+    </ol>
+  </li>
+
+
+  <li><a href="#dialogs">Dialogs</a>
+    <ol>
+      <li><a href="#makingadialog">Making a dialog</a></li>
+      <li><a href="#showingadialog">Showing a dialog</a></li>
     </ol>
   </li>
 </ol>
@@ -961,6 +970,57 @@ It should just beep.
 Try calling <code>Ev</code>.
 It should no longer return <code>close_window</code> events.
 
+<p>
+Because simply beeping is a non-sensical thing to do for the close control,
+you might want to disconnect the event now.
+
+<p>
+<blockquote><code>
+	wxFrame:disconnect (F, close_window).
+</code></blockquote>
+
+<p>
+<a name=dialogs></a>
+<h2>Dialogs</h2>
+
+<p>
+An "About" menu item really ought to take us to a dialog.
+But how do you make one?
+Here's the simplest way to make a modal dialog.
+
+<a name=makingadialog></a>
+<h3>Making a dialog</h3>
+
+<p>
+Type the following line:
+
+<blockquote><code>
+	wxMessageDialog:new (F, "Let's talk.").
+</code></blockquote>
+
+<p>
+This should return <code>true</code> but will show nothing graphically.
+
+<a name=makingadialog></a>
+<h3>Making a dialog</h3>
+
+<p>
+To show the dialog and interact with it, type this:
+
+<p>
+<blockquote><code>
+	wxMessageDialog:showModal (D).
+</code></blockquote>
+
+<p>
+You should now (somewhere on your screen) see something like this:
+
+<p>
+<center> <img src="dialog.png" /> </center>
+
+<p>
+Because the dialog is modal, the <code>showModal</code> call won't terminate
+until you hit the "OK" button.
 
             </div>
         </div>
