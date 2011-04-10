@@ -58,7 +58,7 @@
 <center>
 <h1>Getting Started with wxWidgets in Erlang</h1>
 <br>
-<em>(DRAFT - 2011-04-07)</em>
+<em>(DRAFT - 2011-04-10)</em>
 <br>
 Michael Turner
 <br>
@@ -134,10 +134,10 @@ This tutorial shows you how to use basic wxWidgets in Erlang.
   </li>
 
 
-  <li><a href="#dialogs">Dialogs</a>
+  <li><a href="#dialogs">Dialog boxes</a>
     <ol>
-      <li><a href="#makingadialog">Making a dialog</a></li>
-      <li><a href="#showingadialog">Showing a dialog</a></li>
+      <li><a href="#makingamodaldialog">Making a modal dialog</a></li>
+      <li><a href="#showingamodaldialog">Showing a modal dialog</a></li>
     </ol>
   </li>
 </ol>
@@ -984,25 +984,25 @@ you might want to disconnect the event now.
 <h2>Dialogs</h2>
 
 <p>
-An "About" menu item really ought to take us to a dialog.
+An "About" menu item really ought to take us to a modal dialog.
 But how do you make one?
-Here's the simplest way to make a modal dialog.
+Here's the simplest way.
 
-<a name=makingadialog></a>
-<h3>Making a dialog</h3>
+<a name=makingamodaldialog></a>
+<h3>Making a modal dialog</h3>
 
 <p>
 Type the following line:
 
 <blockquote><code>
-	wxMessageDialog:new (F, "Let's talk.").
+	D = wxMessageDialog:new (F, "Let's talk.").
 </code></blockquote>
 
 <p>
 This should return <code>true</code> but will show nothing graphically.
 
-<a name=makingadialog></a>
-<h3>Making a dialog</h3>
+<a name=showingamodaldialog></a>
+<h3>Showing a modal dialog</h3>
 
 <p>
 To show the dialog and interact with it, type this:
@@ -1013,14 +1013,17 @@ To show the dialog and interact with it, type this:
 </code></blockquote>
 
 <p>
-You should now (somewhere on your screen) see something like this:
+Somewhere on your screen,
+you should now see something like this:
 
 <p>
 <center> <img src="dialog.png" /> </center>
 
 <p>
-Because the dialog is modal, the <code>showModal</code> call won't terminate
+Because the dialog is modal,
+the <code>showModal</code> call won't return with a value in the shell
 until you hit the "OK" button.
+
 
             </div>
         </div>
